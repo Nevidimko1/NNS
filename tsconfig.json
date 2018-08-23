@@ -1,0 +1,18 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "baseUrl": "",
+        "declaration": false,
+        "noUnusedLocals": true,
+        "sourceMap": true,
+        "noUnusedParameters": true,
+        "lib": [ "es6", "dom" ],
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "typeRoots": [
+            "../node_modules/@types"
+        ],
+        "outDir": "./dist",
+        "target": "es5"
+    }
+}
