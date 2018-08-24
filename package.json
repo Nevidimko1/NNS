@@ -5,7 +5,7 @@
   "scripts": {
     "build": "webpack --config=webpack.prod.config",
     "devLauncher": "node ./configs/generateDevLauncher.js",
-    "start": "npm run devLauncher&& webpack --watch --config=webpack.dev.config",
+    "start": "npm run devLauncher&& webpack-dev-server --config=webpack.dev.config",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Sergey Mankevich",
