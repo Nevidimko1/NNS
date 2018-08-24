@@ -1,9 +1,9 @@
 const fs = require('fs');
 
-const scriptConfig = require('./scriptConfig')(true);
-const webpackDevConfig = require('../webpack.dev.config');
+const header = require('./scriptHeader')(true);
+const webpackDevConfig = require('../configs/webpack.dev.config');
 
-const content = scriptConfig + `
+const content = header + `
 
 let script = document.createElement("script");
 script.src = 'http://localhost:${webpackDevConfig.devServer.port}/nns.user.js';
