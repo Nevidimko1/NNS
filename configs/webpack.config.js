@@ -1,10 +1,11 @@
 const webpack = require('webpack');
 const TSLintPlugin = require('tslint-webpack-plugin');
+const path = require('path');
 
 module.exports = {
     entry: './src/index.ts',
     output: {
-        path: __dirname + '/dist',
+        path: path.join(__dirname, '..', '/dist'),
         filename: 'nns.user.js'
     },
     externals: {
