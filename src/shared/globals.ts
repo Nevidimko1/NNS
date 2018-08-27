@@ -5,7 +5,7 @@ import { ICompanyInfo } from './models/companyInfo.model';
 import { UNIT_PAGES } from './enums/unitPages.enum';
 import { UNIT_TYPES } from './enums/unitTypes.enum';
 
-import { getCookie } from './utils';
+import { getCookie } from '../utils';
 import { PAGE_TYPES } from './enums/pageTypes.enum';
 
 export class Globals {

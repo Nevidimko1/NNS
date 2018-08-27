@@ -2,25 +2,44 @@ import { Runnable } from '../common/runnable';
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
+import { Globals } from '../../shared/globals';
+import { store_ls, restore_ls } from '../../utils/storage';
+
+export interface IFilterUnitsModel {
+    filters: {
+        filterById: string;
+        filterByCity: string;
+        filterByName: string;
+        filterBySize: string;
+        filterByProducts: string;
+    };
+}
 
 export class FilterUnits extends Runnable {
     protected readonly pageTypes = [PAGE_TYPES.UNIT_LIST];
     protected readonly unitTypes = [UNIT_TYPES.ANY];
     protected readonly unitPages = [UNIT_PAGES.ANY];
 
-    private filterById: string;
-    private filterByCity: string;
-    private filterByName: string;
-    private filterBySize: string;
-    private filterByProducts: string;
+    private readonly storageKey: string;
+
+    private data: IFilterUnitsModel;
 
     constructor() {
         super();
 
-        this.filterByName = '';
+        this.storageKey = `${Globals.getInstance().companyInfo.id}/${PAGE_TYPES.UNIT_LIST}/FilterUnits`;
+        this.data = {
+            filters: {
+                filterById: '',
+                filterByCity: '',
+                filterByName: '',
+                filterBySize: '',
+                filterByProducts: ''
+            }
+        };
     }
 
-    private filterUnits() {
+    private filterUnits(): void {
         try {
             $('table.unit-list-2014 > tbody > tr')
                 .toArray()
@@ -33,11 +52,17 @@ export class FilterUnits extends Runnable {
                         .toArray()
                         .map((a: any) => a.title.toLowerCase().trim()) as Array<string>;
 
-                    let show = (!this.filterById || id.indexOf(this.filterById.toLowerCase()) > -1) &&
-                        (!this.filterByCity || city.indexOf(this.filterByCity.toLowerCase()) > -1) &&
-                        (!this.filterByName || name.indexOf(this.filterByName.toLowerCase()) > -1) &&
-                        (!this.filterBySize || size.indexOf(this.filterBySize.toLowerCase()) > -1) &&
-                        (!this.filterByProducts || !!products.filter(p => p.indexOf(this.filterByProducts.toLowerCase()) > -1)[0]);
+                    let show = (!this.data.filters.filterById || id.indexOf(this.data.filters.filterById.toLowerCase()) > -1) &&
+                        (!this.data.filters.filterByCity || city.indexOf(this.data.filters.filterByCity.toLowerCase()) > -1) &&
+                        (!this.data.filters.filterByName || name.indexOf(this.data.filters.filterByName.toLowerCase()) > -1) &&
+                        (!this.data.filters.filterBySize || size.indexOf(this.data.filters.filterBySize.toLowerCase()) > -1) &&
+                        (!this.data.filters.filterByProducts ||
+                            !!products.filter(p => this.data.filters.filterByProducts.toLowerCase()
+                                .split(',')
+                                .filter(f => p.indexOf(f) > -1)[0]
+                            )[0]);
+                        // (!this.data.filters.filterByProducts ||
+                        //     !!products.filter(p => p.indexOf(this.data.filters.filterByProducts.toLowerCase()) > -1)[0]);
                     show = show || row.id === 'fake-row';
                     $(row).css('display', show ? 'table-row' : 'none');
                 });
@@ -46,7 +71,27 @@ export class FilterUnits extends Runnable {
         }
     }
 
-    protected run() {
+    private saveAndFilterUnits(): void {
+        store_ls(this.storageKey, this.data, new Date(Globals.getInstance().info.date));
+        this.filterUnits();
+    }
+
+    private restoreFilterUnits(): void {
+        const restored = restore_ls(this.storageKey);
+        if (restored) {
+            this.data = restored.data;
+
+            $('#filter-units-by-id').val(this.data.filters.filterById);
+            $('#filter-units-by-city').val(this.data.filters.filterByCity);
+            $('#filter-units-by-name').val(this.data.filters.filterByName);
+            $('#filter-units-by-size').val(this.data.filters.filterBySize);
+            $('#filter-units-by-products').val(this.data.filters.filterByProducts);
+
+            this.filterUnits();
+        }
+    }
+
+    protected run(): void {
         $('table.unit-list-2014 thead').after(`
             <thead>
                 <tr>
@@ -73,12 +118,14 @@ export class FilterUnits extends Runnable {
                     <th style="width: 20%">
                         <div class="cell-wrapper">
                             <input id="filter-units-by-products" class="nns-input" type="text">
+                            <div class="help" style="position: absolute; right: 1px; top: 2px;"
+                                title="Comma separated list (e.g. tools,diesel,clothes)">?</div>
                         </div>
                     </th>
                     <th style="width: 5%"></th>
                     <th style="width: 5%">
                         <div class="cell-wrapper">
-                            <button id="filters-reset" class="nns-button nns-button-danger">Reset</button>
+                            <button id="filters-reset" class="nns-button nns-button-danger" title="Reset filters">Reset</button>
                         </div>
                     </th>
                 </tr>
@@ -86,36 +133,36 @@ export class FilterUnits extends Runnable {
         `);
 
         $('#filter-units-by-id').on('input', (event: JQueryInputEventObject) => {
-            this.filterById = $(event.target).val() as string;
-            this.filterUnits();
+            this.data.filters.filterById = $(event.target).val() as string;
+            this.saveAndFilterUnits();
         });
 
         $('#filter-units-by-city').on('input', (event: JQueryInputEventObject) => {
-            this.filterByCity = $(event.target).val() as string;
-            this.filterUnits();
+            this.data.filters.filterByCity = $(event.target).val() as string;
+            this.saveAndFilterUnits();
         });
 
         $('#filter-units-by-name').on('input', (event: JQueryInputEventObject) => {
-            this.filterByName = $(event.target).val() as string;
-            this.filterUnits();
+            this.data.filters.filterByName = $(event.target).val() as string;
+            this.saveAndFilterUnits();
         });
 
         $('#filter-units-by-size').on('input', (event: JQueryInputEventObject) => {
-            this.filterBySize = $(event.target).val() as string;
-            this.filterUnits();
+            this.data.filters.filterBySize = $(event.target).val() as string;
+            this.saveAndFilterUnits();
         });
 
         $('#filter-units-by-products').on('input', (event: JQueryInputEventObject) => {
-            this.filterByProducts = $(event.target).val() as string;
-            this.filterUnits();
+            this.data.filters.filterByProducts = $(event.target).val() as string;
+            this.saveAndFilterUnits();
         });
 
         $('#filters-reset').on('click', () => {
-            this.filterById = '';
-            this.filterByCity = '';
-            this.filterByName = '';
-            this.filterBySize = '';
-            this.filterByProducts = '';
+            this.data.filters.filterById = '';
+            this.data.filters.filterByCity = '';
+            this.data.filters.filterByName = '';
+            this.data.filters.filterBySize = '';
+            this.data.filters.filterByProducts = '';
 
             $('#filter-units-by-id').val('');
             $('#filter-units-by-city').val('');
@@ -123,11 +170,14 @@ export class FilterUnits extends Runnable {
             $('#filter-units-by-size').val('');
             $('#filter-units-by-products').val('');
 
-            this.filterUnits();
+            this.saveAndFilterUnits();
         });
 
         // fake row to prevent auto column resizing during filtering process
         $('table.unit-list-2014 tbody').append('<tr id="fake-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+
+        // restore filters from localStorage
+        this.restoreFilterUnits();
     }
 
 }

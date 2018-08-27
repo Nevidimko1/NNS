@@ -48,11 +48,23 @@ table.unit-list-2014 td.info {
 }
 
 .cell-wrapper {
+    position: relative;
     display: flex;
     justify-content: center;
+    width: calc(100% - 5px);
 }
 
-/* filter units */
+.help {
+    width: 15px;
+    height: 15px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 1.2em;
+    text-align: center;
+    background: #0184D0;
+    line-height: 15px;
+    border-radius: 8px;
+}
 
 /* shop prices */
 
@@ -100,3 +112,4 @@ table.unit-list-2014 td.info {
 .qps_button:active {
     background-color: #179f35;
 }
+
