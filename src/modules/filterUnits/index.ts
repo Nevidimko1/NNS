@@ -4,16 +4,7 @@ import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
 import { Globals } from '../../shared/globals';
 import { store_ls, restore_ls } from '../../utils/storage';
-
-export interface IFilterUnitsModel {
-    filters: {
-        filterById: string;
-        filterByCity: string;
-        filterByName: string;
-        filterBySize: string;
-        filterByProducts: string;
-    };
-}
+import { IFilterUnitsModel } from './models/filterUnit.model';
 
 export class FilterUnits extends Runnable {
     protected readonly pageTypes = [PAGE_TYPES.UNIT_LIST];
