@@ -1,6 +1,7 @@
-import { Prices } from './modules/prices';
+import { ShopPrices } from './modules/prices';
 
 export const run = () => {
-    const pricesScript = new Prices();
-    pricesScript.checkAndRun();
+    // add scripts here
+
+    new ShopPrices().checkAndRun();
 };

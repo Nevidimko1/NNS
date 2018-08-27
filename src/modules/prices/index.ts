@@ -4,7 +4,7 @@ import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { calcRowPrice, getProductInfo } from './prices.helper';
 
-export class Prices extends Runnable {
+export class ShopPrices extends Runnable {
     protected readonly unitTypes = [UNIT_TYPES.SHOP, UNIT_TYPES.FUEL];
     protected readonly unitPages = [UNIT_PAGES.TRADING_HALL];
 

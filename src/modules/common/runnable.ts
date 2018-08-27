@@ -4,12 +4,12 @@ import { Globals } from '../../shared/globals';
 
 export abstract class Runnable {
     /**
-     * Building types script should be run on
+     * List of unit types, which script should be run on
      */
     protected abstract unitTypes: UNIT_TYPES[];
 
     /**
-     * Building pages script should be run on
+     * List of unit pages, which script should be run on
      */
     protected abstract unitPages: UNIT_PAGES[];
 
