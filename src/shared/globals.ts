@@ -6,6 +6,7 @@ import { UNIT_PAGES } from './enums/unitPages.enum';
 import { UNIT_TYPES } from './enums/unitTypes.enum';
 
 import { getCookie } from './utils';
+import { PAGE_TYPES } from './enums/pageTypes.enum';
 
 export class Globals {
     private static instance: Globals;
@@ -39,11 +40,11 @@ export class Globals {
         };
 
         if (this.url.match(/view\/\d+\/(unit_list\/$|unit_list$)/)) {
-            pageInfo.pageType = 'unit_list';
+            pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
         }
 
         if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
-            pageInfo.pageType = 'unit_page';
+            pageInfo.pageType = PAGE_TYPES.UNIT_PAGE;
             pageInfo.unitId = this.url.match(/[0-9]{1,12}/)[0];
 
             if (!/unit\/view\/[0-9]{1,12}\/[a-zA-Z]+/.exec(this.url)) {
@@ -57,6 +58,12 @@ export class Globals {
             pageInfo.unitType = UNIT_TYPES[unitTypeString.toUpperCase()];
         }
         return pageInfo;
+    }
+
+    public init = (): Promise<any> => {
+        return new Promise((resolve) => {
+            resolve();
+        });
     }
 
     static getInstance(): Globals {

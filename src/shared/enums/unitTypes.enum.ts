@@ -1,4 +1,5 @@
 export enum UNIT_TYPES {
     SHOP = 'shop',
-    FUEL = 'fuel'
+    FUEL = 'fuel',
+    ANY = 'any'
 }

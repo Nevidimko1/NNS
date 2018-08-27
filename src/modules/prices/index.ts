@@ -2,9 +2,11 @@ import { IProductInfo } from './models/productInfo.model';
 import { Runnable } from '../common/runnable';
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
+import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
 import { calcRowPrice, getProductInfo } from './prices.helper';
 
 export class ShopPrices extends Runnable {
+    protected readonly pageTypes = [PAGE_TYPES.UNIT_PAGE];
     protected readonly unitTypes = [UNIT_TYPES.SHOP, UNIT_TYPES.FUEL];
     protected readonly unitPages = [UNIT_PAGES.TRADING_HALL];
 

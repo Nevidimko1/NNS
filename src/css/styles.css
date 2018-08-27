@@ -1,3 +1,61 @@
+/* global overrides */
+#wrapper, .metro_header, .metro_footer {
+    width: 100%
+}
+table.unit-list-2014 td.info {
+    width: unset;
+}
+
+/* end global overrides */
+
+.nns-bg {
+    background: #aee9ae;
+}
+
+.nns-table {
+    width: 100%;
+    margin-bottom: 10px;
+    border-collapse: collapse;
+}
+.nns-table thead {
+    background: #aee9ae;
+}
+.nns-table th {
+    vertical-align: middle;
+    font-size: 12px;
+    text-align: left;
+    padding: 6px 0 6px 5px;
+    border-bottom: 2px solid #676767;
+}
+
+.nns-button {
+    background-color: #02b002;
+    color: white;
+    font-size: small;
+    border: 0;
+    padding: 1px 5px;
+}
+
+.nns-button-danger {
+    background: red;
+}
+
+.nns-input {
+    width: 100%;
+    border: 1px;
+    padding: 1px 5px;
+    border-radius: 0 !important;
+}
+
+.cell-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+/* filter units */
+
+/* shop prices */
+
 .localInfoColor {
     color: blueviolet;
 }
