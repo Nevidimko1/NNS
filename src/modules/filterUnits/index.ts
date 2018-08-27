@@ -92,44 +92,45 @@ export class FilterUnits extends Runnable {
     }
 
     protected run(): void {
-        $('table.unit-list-2014 thead').after(`
-            <thead>
-                <tr>
-                    <th style="width: 4%">
-                        <div class="cell-wrapper">
-                            <input id="filter-units-by-id" class="nns-input" type="text">
-                        </div>
-                    </th>
-                    <th style="width: 11%">
-                        <div class="cell-wrapper">
-                            <input id="filter-units-by-city" class="nns-input" type="text">
-                        </div>
-                    </th>
-                    <th colspan="2" style="width: 40%">
-                        <div class="cell-wrapper">
-                            <input id="filter-units-by-name" class="nns-input" type="text">
-                        </div>
-                    </th>
-                    <th style="width: 15%">
-                        <div class="cell-wrapper">
-                            <input id="filter-units-by-size" class="nns-input" type="text">
-                        </div>
-                    </th>
-                    <th style="width: 20%">
-                        <div class="cell-wrapper">
-                            <input id="filter-units-by-products" class="nns-input" type="text">
-                            <div class="help" style="position: absolute; right: 1px; top: 2px;"
-                                title="Comma separated list (e.g. tools,diesel,clothes)">?</div>
-                        </div>
-                    </th>
-                    <th style="width: 5%"></th>
-                    <th style="width: 5%">
-                        <div class="cell-wrapper">
-                            <button id="filters-reset" class="nns-button nns-button-danger" title="Reset filters">Reset</button>
-                        </div>
-                    </th>
-                </tr>
-            </thead>
+        // add class to the body to have full-width page content
+        $('body').addClass('unit_list');
+
+        $('table.unit-list-2014 thead tr').after(`
+            <tr>
+                <th style="width: 8%">
+                    <div class="cell-wrapper">
+                        <input id="filter-units-by-id" class="nns-input" type="text">
+                    </div>
+                </th>
+                <th style="width: 14%">
+                    <div class="cell-wrapper">
+                        <input id="filter-units-by-city" class="nns-input" type="text">
+                    </div>
+                </th>
+                <th colspan="2" style="width: 40%">
+                    <div class="cell-wrapper">
+                        <input id="filter-units-by-name" class="nns-input" type="text">
+                    </div>
+                </th>
+                <th style="width: 8%">
+                    <div class="cell-wrapper">
+                        <input id="filter-units-by-size" class="nns-input" type="text">
+                    </div>
+                </th>
+                <th style="width: 20%">
+                    <div class="cell-wrapper">
+                        <input id="filter-units-by-products" class="nns-input" type="text">
+                        <div class="help" style="position: absolute; right: 1px; top: 2px;"
+                            title="Comma separated list (e.g. tools,diesel,clothes)">?</div>
+                    </div>
+                </th>
+                <th style="width: 56px"></th>
+                <th style="width: 5%">
+                    <div class="cell-wrapper">
+                        <button id="filters-reset" class="nns-button nns-button-danger bold" title="Reset filters">x</button>
+                    </div>
+                </th>
+            </tr>
         `);
 
         $('#filter-units-by-id').on('input', (event: JQueryInputEventObject) => {

@@ -1,12 +1,26 @@
 /* global overrides */
-#wrapper, .metro_header, .metro_footer {
+
+.unit_list #wrapper, .unit_list .metro_header, .unit_list .metro_footer {
     width: 100%
 }
+
 table.unit-list-2014 td.info {
     width: unset;
 }
+/* 
+table.unit-list-2014 tr {
+    display: flex;
+} */
+
+/* table.unit-list-2014 thead {
+    display: table-caption;
+} */
 
 /* end global overrides */
+
+.bold {
+    font-weight: bold;
+}
 
 .nns-bg {
     background: #aee9ae;
@@ -43,7 +57,7 @@ table.unit-list-2014 td.info {
 .nns-input {
     width: 100%;
     border: 1px;
-    padding: 1px 5px;
+    padding: 1px 3px;
     border-radius: 0 !important;
 }
 
@@ -51,7 +65,7 @@ table.unit-list-2014 td.info {
     position: relative;
     display: flex;
     justify-content: center;
-    width: calc(100% - 5px);
+    margin-right: 5px;
 }
 
 .help {
