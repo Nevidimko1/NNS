@@ -1,7 +1,7 @@
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
-import { Globals } from '../../shared/globals';
+import { Globals } from '../../shared/globals/globals.component';
 
 export abstract class Runnable {
     /**

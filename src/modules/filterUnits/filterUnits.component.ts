@@ -2,7 +2,7 @@ import { Runnable } from '../common/runnable';
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
-import { Globals } from '../../shared/globals';
+import { Globals } from '../../shared/globals/globals.component';
 import { store_ls, restore_ls } from '../../utils/storage';
 import { IFilterUnitsModel } from './models/filterUnit.model';
 
@@ -13,7 +13,7 @@ export class FilterUnits extends Runnable {
 
     private readonly storageKey: string;
 
-    private data: IFilterUnitsModel;
+    protected data: IFilterUnitsModel;
 
     constructor() {
         super();
@@ -86,41 +86,55 @@ export class FilterUnits extends Runnable {
         // add class to the body to have full-width page content
         $('body').addClass('unit_list');
 
+        // add colgroup element to the table
+        $('table.unit-list-2014 thead').before(`
+            <colgroup>
+                <col style="width: 60px">
+                <col style="width: 140px">
+                <col style="width: 60%">
+                <col style="width: 50px">
+                <col style="width: 80px">
+                <col style="width: 40%">
+                <col style="width: 60px">
+                <col style="width: 60px">
+            </colgroup>
+        `);
+
         $('table.unit-list-2014 thead tr').after(`
             <tr>
-                <th style="width: 8%">
+                <th>
                     <div class="cell-wrapper">
                         <input id="filter-units-by-id" class="nns-input" type="text">
                     </div>
                 </th>
-                <th style="width: 14%">
+                <th>
                     <div class="cell-wrapper">
                         <input id="filter-units-by-city" class="nns-input" type="text">
                     </div>
                 </th>
-                <th colspan="2" style="width: 40%">
+                <th colspan="2">
                     <div class="cell-wrapper">
                         <input id="filter-units-by-name" class="nns-input" type="text">
                     </div>
                 </th>
-                <th style="width: 8%">
+                <th>
                     <div class="cell-wrapper">
                         <input id="filter-units-by-size" class="nns-input" type="text">
                     </div>
                 </th>
-                <th style="width: 20%">
+                <th>
                     <div class="cell-wrapper">
                         <input id="filter-units-by-products" class="nns-input" type="text">
                         <div class="help" style="position: absolute; right: 1px; top: 2px;"
                             title="Comma separated list (e.g. tools,diesel,clothes)">?</div>
                     </div>
                 </th>
-                <th style="width: 56px"></th>
-                <th style="width: 5%">
+                <th>
                     <div class="cell-wrapper">
-                        <button id="filters-reset" class="nns-button nns-button-danger bold" title="Reset filters">x</button>
+                        <button id="filters-reset" class="nns-button nns-button-danger" title="Reset filters">Clear</button>
                     </div>
                 </th>
+                <th></th>
             </tr>
         `);
 
@@ -166,7 +180,8 @@ export class FilterUnits extends Runnable {
         });
 
         // fake row to prevent auto column resizing during filtering process
-        $('table.unit-list-2014 tbody').append('<tr id="fake-row"><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
+        $('table.unit-list-2014 tbody')
+            .append('<tr id="fake-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
 
         // restore filters from localStorage
         this.restoreFilterUnits();

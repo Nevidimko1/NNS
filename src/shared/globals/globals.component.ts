@@ -2,20 +2,27 @@ import { IRealmInfo } from './models/realmInfo.model';
 import { IPageInfo } from './models/pageInfo.model';
 import { ICompanyInfo } from './models/companyInfo.model';
 
-import { UNIT_PAGES } from './enums/unitPages.enum';
-import { UNIT_TYPES } from './enums/unitTypes.enum';
+import { UNIT_PAGES } from '../enums/unitPages.enum';
+import { UNIT_TYPES } from '../enums/unitTypes.enum';
 
-import { getCookie } from '../utils';
-import { PAGE_TYPES } from './enums/pageTypes.enum';
+import { getCookie } from '../../utils';
+import { PAGE_TYPES } from '../enums/pageTypes.enum';
+import { IGlobals } from './models/globals.model';
+import { Api } from '../../utils/api';
+import { IUnitItem, IUnitsResponse } from './models/unitInfo.model';
+import { GlobalsHelper } from './globals.helper';
+import { IUnitTypesResponse, IUnitType } from './models/unitType.model';
 
-export class Globals {
+export class Globals implements IGlobals {
     private static instance: Globals;
 
     protected url: string;
 
-    readonly info: IRealmInfo;
-    readonly pageInfo: IPageInfo;
-    readonly companyInfo: ICompanyInfo;
+    public info: IRealmInfo;
+    public pageInfo: IPageInfo;
+    public companyInfo: ICompanyInfo;
+    public unitsList: IUnitItem[];
+    public unitTypes: IUnitType[];
 
     private constructor() {
         this.url = window.location.href;
@@ -60,10 +67,25 @@ export class Globals {
         return pageInfo;
     }
 
+    private fetchUnitTypesList = (): Promise<any> => {
+        return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/unittype/browse`)
+            .then((response: IUnitTypesResponse) => {
+                this.unitTypes = GlobalsHelper.parseUnitTypesResponse(response);
+            });
+    }
+
+    private fetchUnitsList = (): Promise<any> => {
+        return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=4000`)
+            .then((response: IUnitsResponse) => {
+                this.unitsList = GlobalsHelper.parseUnitsResponse(response);
+            });
+    }
+
     public init = (): Promise<any> => {
-        return new Promise((resolve) => {
-            resolve();
-        });
+        return Promise.all([
+            this.fetchUnitsList(),
+            this.fetchUnitTypesList()
+        ]);
     }
 
     static getInstance(): Globals {

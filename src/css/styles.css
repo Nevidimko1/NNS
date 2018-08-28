@@ -7,19 +7,18 @@
 table.unit-list-2014 td.info {
     width: unset;
 }
-/* 
-table.unit-list-2014 tr {
-    display: flex;
-} */
 
-/* table.unit-list-2014 thead {
-    display: table-caption;
-} */
+body.unit_list table.unit-list-2014 {
+    table-layout: fixed;
+}
 
 /* end global overrides */
 
 .bold {
-    font-weight: bold;
+    font-weight: bold !important;
+}
+.center {
+    text-align: center !important;
 }
 
 .nns-bg {
@@ -49,9 +48,28 @@ table.unit-list-2014 tr {
     border: 0;
     padding: 1px 5px;
 }
+.nns-button:hover {
+    background-color: #35bf24;
+}
+.nns-button:active {
+    background-color: #179f35;
+}
 
 .nns-button-danger {
-    background: red;
+    background: #D81E1E;
+}
+.nns-button-danger:hover {
+    background-color: #CC0202;
+}
+.nns-button-danger:active {
+    background-color: #9E1616;
+}
+
+select.nns-select {
+    width: 100%;
+}
+select.nns-select option {
+    padding: 0 3px;
 }
 
 .nns-input {
@@ -80,50 +98,47 @@ table.unit-list-2014 tr {
     border-radius: 8px;
 }
 
-/* shop prices */
+#fake-row td {
+    padding: 0;
+}
+
+/* Management - prices */
+/* th.management-separator {
+    border-left: 2px solid #676767;
+} */
+
+.management-separator {
+    border-left: 1px solid rgb(220, 220, 220, 0.5);
+}
+
+/* End of Management - prices */
+
+/* Shop prices */
 
 .localInfoColor {
     color: blueviolet;
 }
-#qps_groupConfig {
+#nns-groupConfig {
     display: flex;
     background-color: #aee9ae;
     padding: 2px;
     margin: 0 2px;
 }
-.qps_config_group, .qps_config_group > * {
+.nns-config_group, .nns-config_group > * {
     display: inline-block;
 }
-.qps_qualityBonus, .qps_brandBonus, .qps_minPrice {
+.nns-qualityBonus, .nns-brandBonus, .nns-minPrice {
     width: 40px;
 }
-#qps_groupConfig .qps_label {
+#nns-groupConfig .nns-label {
     font-weight: bold;
     font-size: 0.9em;
     padding-top: 2px;
 }
-#qps_groupConfig .qps_controls {
+#nns-groupConfig .nns-controls {
     flex-grow: 1;
     text-align: right;
 }
-.qps_cont {
+.nns-cont {
     min-width: 170px;
 }
-.qps_input {
-    border: 1px;
-    padding: 1px 5px;
-}
-.qps_button {
-    background-color: #02b002;
-    color: white;
-    font-size: small;
-    border: 0;
-    padding: 1px 5px;
-}
-.qps_button:hover {
-    background-color: #35bf24;
-}
-.qps_button:active {
-    background-color: #179f35;
-}
-

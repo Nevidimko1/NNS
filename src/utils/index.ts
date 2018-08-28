@@ -55,3 +55,7 @@ export const setCookie = (name: string, value: string, options: any): void => {
 
     document.cookie = updatedCookie;
 };
+
+export function flatMap<T>(source: T): Array<T[keyof T]> {
+    return Object.keys(source).map(key => source[key]);
+}

@@ -45,9 +45,9 @@ export const calcPrice = function (
     if (!myQuality) {
         return '0.00';
     }
-    const qualityBonus = (Number(String($('.qps_qualityBonus').val()).replace('%', '')) || 100) / 100,
-        brandBonus = (Number(String($('.qps_brandBonus').val()).replace('%', '')) || 100) / 100,
-        minPriceMultiplier = (Number(String($('.qps_minPrice').val()).replace('%', '')) || 100) / 100,
+    const qualityBonus = (Number(String($('.nns-qualityBonus').val()).replace('%', '')) || 100) / 100,
+        brandBonus = (Number(String($('.nns-brandBonus').val()).replace('%', '')) || 100) / 100,
+        minPriceMultiplier = (Number(String($('.nns-minPrice').val()).replace('%', '')) || 100) / 100,
         mQuality = (myQuality - localQuality) / 10 * qualityBonus,
         mBrand = (myBrand - localBrand) * brandBonus,
         price = (localPrice * (1 + mQuality + mBrand)).toFixed(2),
