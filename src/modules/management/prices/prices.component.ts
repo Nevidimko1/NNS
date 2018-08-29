@@ -3,14 +3,21 @@ import { AllCalculateChoices } from './calcuateChoices/calculateChoices.componen
 import { Globals } from '../../../shared/globals/globals.component';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
 import { PricesHelper } from './prices.helper';
+import { PAGE_TYPES } from '../../../shared/enums/pageTypes.enum';
+import { Storage } from '../../../utils/storage';
+import { IStorageProductSetting } from './models/storageProductSetting.model';
+import { numberify } from '../../../utils';
 
 export class Prices {
+    private storageKey: string;
+    private storageSettings: IStorageProductSetting[];
 
     protected calculateChoices: ICalculateChoice[] = AllCalculateChoices;
-    protected minChoices: number[] = [0, 1, 1.1, 1.4, 2];
+    protected minPriceChoices: number[] = [0, 1, 1.1, 1.4, 1.6, 2];
 
     constructor() {
-
+        this.storageKey = `${Globals.getInstance().info.realm}/${Globals.getInstance().companyInfo.id}/${PAGE_TYPES.UNIT_LIST}/Prices`;
+        this.storageSettings = [];
     }
 
     private getUnitItemByRow = (row: HTMLTableRowElement): IUnitItem => {
@@ -35,7 +42,7 @@ export class Prices {
             </select>
             <select class="min-price-select nns-select full-w">
                 ${
-                    this.minChoices.map((choice: number) => {
+                    this.minPriceChoices.map((choice: number) => {
                         return `<option title="minPrice = purchasePrice * ${choice}">${choice}</option>`;
                     }).join('')
                 }
@@ -46,7 +53,7 @@ export class Prices {
     private calculatePrices = (): void => {
         const filteredRows = $('table.unit-list-2014 tbody tr')
             .toArray()
-            .filter((row: HTMLTableRowElement) => !$(row).hasClass('hidden'))
+            .filter((row: HTMLTableRowElement) => !$(row).hasClass('nns-hidden'))
             .filter((row: HTMLTableRowElement) => {
                 const info = this.getUnitItemByRow(row);
                 return info && info.unit_class_kind === 'shop';
@@ -60,6 +67,26 @@ export class Prices {
                     minPriceMultiplier = Number($(row).find('select.min-price-select').val());
                 PricesHelper.updateUnitPrices(info, priceChoice, minPriceMultiplier);
             });
+    }
+
+    private updateSettings = (): void => {
+        Storage.set(this.storageKey, this.storageSettings, new Date());
+    }
+
+    private loadSettings = (): void => {
+        const restored = Storage.get(this.storageKey),
+            productSettings: IStorageProductSetting[] = restored ? restored.data : [];
+
+        this.storageSettings = productSettings;
+        productSettings.forEach((productSetting: IStorageProductSetting) => {
+            const row = $('table.unit-list-2014 tbody tr')
+                .toArray()
+                .filter((r: HTMLTableRowElement) => numberify($(r).find('.unit_id').text()) === productSetting.unitId)[0];
+            if (row) {
+                $(row).find('select.price-select').val(productSetting.priceChoice);
+                $(row).find('select.min-price-select').val(productSetting.minPriceChoice);
+            }
+        });
     }
 
     public addColumn = () => {
@@ -82,6 +109,44 @@ export class Prices {
                     </td>
                 `);
         });
+
+        // Price dropdown change
+        $('select.price-select').on('change', (e) => {
+            const row = $(e.target).parents('tr').get(),
+                unitId = Number($(row).find('.unit_id').text()),
+                existingSettings = this.storageSettings.filter((s: IStorageProductSetting) => s.unitId === unitId)[0];
+
+            if (existingSettings) {
+                existingSettings.priceChoice = $(e.target).val() as string;
+            } else {
+                this.storageSettings.push({
+                    unitId,
+                    priceChoice: $(e.target).val() as string,
+                    minPriceChoice: String(this.minPriceChoices[0])
+                });
+            }
+            this.updateSettings();
+        });
+
+        // Min price dropdown change
+        $('select.min-price-select').on('change', (e) => {
+            const row = $(e.target).parents('tr').get(),
+                unitId = Number($(row).find('.unit_id').text()),
+                existingSettings = this.storageSettings.filter((s: IStorageProductSetting) => s.unitId === unitId)[0];
+
+            if (existingSettings) {
+                existingSettings.minPriceChoice = $(e.target).val() as string;
+            } else {
+                this.storageSettings.push({
+                    unitId,
+                    priceChoice: this.calculateChoices[0].label,
+                    minPriceChoice: $(e.target).val() as string
+                });
+            }
+            this.updateSettings();
+        });
+
+        this.loadSettings();
 
     }
 }

@@ -72,12 +72,14 @@ export class PricesHelper {
                         .map((e: HTMLElement) => numberify($(e).text())) as number[],
                     cityQualities = $html.find('td:nth-child(13)').toArray()
                         .map((e: HTMLElement) => numberify($(e).text())) as number[],
-                    reportsUrls = $html.find('.grid a:has(img):not(:has(img[alt]))').toArray()
-                        .map((e: HTMLElement) => $(e).attr('href')) as string[],
                     updateFieldNames = $html.find(':text').toArray()
                         .map((e: HTMLElement) => $(e).attr('name')) as string[],
-                    products = unit.products.map((product: IUnitItemProduct, i) => ({
-                        ...product,
+                    reportsUrls = $html.find('.grid a:has(img):not(:has(img[alt]))').toArray()
+                        .map((e: HTMLElement) => $(e).attr('href')) as string[],
+                    produstIds = $html.find('a.popup').toArray()
+                        .map((e: HTMLElement) => numberify($(e).attr('href').split('/')[9])) as number[],
+                    products = produstIds.map((id: number, i) => ({
+                        ...unit.products.filter((p: IUnitItemProduct) => p.id === id)[0],
                         price: prices[i],
                         quality: qualities[i],
                         purch: purches[i],
@@ -115,6 +117,7 @@ export class PricesHelper {
     public static updateUnitPrices = (unitInfo: IUnitItem, priceChoice: ICalculateChoice, minPriceMultiplier: number): Promise<any> => {
         return PricesHelper.getShopInfo(unitInfo)
             .then((shopInfo: IShop) => {
+                console.log(`Setting prices for ${unitInfo.name}`);
                 const newPrices = shopInfo.products
                     .map((product: IShopProduct) => {
                         const prime = Math.round(product.purch * minPriceMultiplier);
@@ -123,7 +126,7 @@ export class PricesHelper {
                 let data = 'action=setprice',
                     change = false;
                 shopInfo.products.forEach((product: IShopProduct, i: number) => {
-                    console.log(product.price, newPrices[i]);
+                    console.log(`${product.name}: ${product.history[0].price} -> ${newPrices[i]}`);
                     if (product.price !== newPrices[i]) {
                         data += '&' + encodeURI(product.updateFieldName + '=' + newPrices[i]);
                         change = true;

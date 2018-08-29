@@ -6,3 +6,7 @@ export interface ICalculateChoice {
 
     calculate(product: IShopProduct): number;
 }
+
+export interface ICalculateShareChoice extends ICalculateChoice {
+    share: number;
+}

@@ -3,7 +3,7 @@ import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
 import { Globals } from '../../shared/globals/globals.component';
-import { store_ls, restore_ls } from '../../utils/storage';
+import { Storage } from '../../utils/storage';
 import { IFilterUnitsModel } from './models/filterUnit.model';
 
 export class FilterUnits extends Runnable {
@@ -18,7 +18,7 @@ export class FilterUnits extends Runnable {
     constructor() {
         super();
 
-        this.storageKey = `${Globals.getInstance().companyInfo.id}/${PAGE_TYPES.UNIT_LIST}/FilterUnits`;
+        this.storageKey = `${Globals.getInstance().info.realm}/${Globals.getInstance().companyInfo.id}/${PAGE_TYPES.UNIT_LIST}/FilterUnits`;
         this.data = {
             filters: {
                 filterById: '',
@@ -53,9 +53,9 @@ export class FilterUnits extends Runnable {
                                 .filter(f => p.indexOf(f) > -1)[0]
                             )[0]);
                     if (show) {
-                        $(row).removeClass('hidden');
+                        $(row).removeClass('nns-hidden');
                     } else {
-                        $(row).addClass('hidden');
+                        $(row).addClass('nns-hidden');
                     }
                 });
         } catch (e) {
@@ -64,12 +64,12 @@ export class FilterUnits extends Runnable {
     }
 
     private saveAndFilterUnits(): void {
-        store_ls(this.storageKey, this.data, new Date(Globals.getInstance().info.date));
+        Storage.set(this.storageKey, this.data, new Date());
         this.filterUnits();
     }
 
     private restoreFilterUnits(): void {
-        const restored = restore_ls(this.storageKey);
+        const restored = Storage.get(this.storageKey);
         if (restored) {
             this.data = restored.data;
 
