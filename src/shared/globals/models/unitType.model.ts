@@ -1,3 +1,5 @@
+import { IBase } from '../../models/base.model';
+
 export interface IUnitTypesResponseItem {
     id: string;
     industry_id: string;
@@ -18,12 +20,10 @@ export interface IUnitTypesResponse {
     [key: string]: IUnitTypesResponseItem;
 }
 
-export interface IUnitType {
-    id: number;
+export interface IUnitType extends IBase {
     industry_id: number;
     class_id: number;
     kind: string;
-    name: string;
     industry_name: string;
     class_name: string;
     symbol: string;

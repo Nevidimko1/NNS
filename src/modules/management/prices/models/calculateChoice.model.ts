@@ -1,6 +1,8 @@
+import { IShopProduct } from '../../../../shared/models/shop.model';
+
 export interface ICalculateChoice {
     label: string;
     description: string;
 
-    calculate(): number;
+    calculate(product: IShopProduct): number;
 }

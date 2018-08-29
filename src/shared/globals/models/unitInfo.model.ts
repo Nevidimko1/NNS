@@ -1,3 +1,5 @@
+import { IBase } from '../../models/base.model';
+
 export interface IUnitsResponseDataItem {
     id: string;
     name: string;
@@ -18,9 +20,9 @@ export interface IUnitsResponseDataItem {
     unit_class_kind: string;
     productivity: string;
     notice: string;
-    product_ids: string[];
-    product_symbols: string[];
-    product_names: string[];
+    product_ids: string;
+    product_symbols: string;
+    product_names: string;
     market_status: string;
     time_to_build: string;
     office_sort: string;
@@ -52,20 +54,22 @@ export interface IUnitsResponse {
     info: any;
 }
 
-export interface IUnitIndicator {
+export interface IUnitIndicator extends IBase {
     id: number;
     kind: string;
     name: string;
 }
 
-export interface IUnitItem {
-    id: number;
-    name: string;
+export interface IUnitItemProduct extends IBase {
+    symbol: string;
+}
+
+export interface IUnitItem extends IBase {
     country_symbol: string;
     country_name: string;
     region_name: string;
     city_name: string;
-    unit_type_id: string;
+    unit_type_id: number;
     unit_type_symbol: string;
     unit_type_name: string;
     size: number;
@@ -78,9 +82,7 @@ export interface IUnitItem {
     unit_class_kind: string;
     productivity: number;
     notice: string;
-    product_ids: string[];
-    product_symbols: string[];
-    product_names: string[];
+    products: IUnitItemProduct[];
     market_status: string;
     time_to_build: number;
     office_sort: number;

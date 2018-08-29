@@ -10,6 +10,6 @@ export class NotSelectedCalculateChoice implements ICalculateChoice {
     }
 
     public calculate = (): number => {
-        return NaN;
+        return 0;
     }
 }

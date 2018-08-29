@@ -24,19 +24,7 @@ export class Globals implements IGlobals {
     public unitsList: IUnitItem[];
     public unitTypes: IUnitType[];
 
-    private constructor() {
-        this.url = window.location.href;
-
-        this.info = {
-            realm: getCookie('last_realm'),
-            date: $('.date_time').html().split('.')[0].trim()
-        };
-
-        this.pageInfo = this.getPageInfo();
-        this.companyInfo = {
-            id: $('a.dashboard').prop('href') ? $('a.dashboard').prop('href').match(/view\/(\d+)\/dashboard/)[1] : 0
-        };
-    }
+    private constructor() { }
 
     private getPageInfo = (): IPageInfo => {
         const pageInfo = <IPageInfo>{
@@ -82,10 +70,30 @@ export class Globals implements IGlobals {
     }
 
     public init = (): Promise<any> => {
-        return Promise.all([
-            this.fetchUnitsList(),
-            this.fetchUnitTypesList()
-        ]);
+        return new Promise((resolve, reject) => {
+            try {
+                this.url = window.location.href;
+
+                this.info = {
+                    realm: getCookie('last_realm'),
+                    date: $('.date_time').html().split('.')[0].trim()
+                };
+
+                this.pageInfo = this.getPageInfo();
+                this.companyInfo = {
+                    id: $('a.dashboard').prop('href') ? $('a.dashboard').prop('href').match(/view\/(\d+)\/dashboard/)[1] : 0
+                };
+                resolve();
+            } catch (e) {
+                reject(e);
+            }
+        })
+            .then(() => {
+                return Promise.all([
+                    this.fetchUnitsList(),
+                    this.fetchUnitTypesList()
+                ]);
+            });
     }
 
     static getInstance(): Globals {

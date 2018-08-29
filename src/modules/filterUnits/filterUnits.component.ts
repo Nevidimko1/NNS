@@ -43,7 +43,7 @@ export class FilterUnits extends Runnable {
                         .toArray()
                         .map((a: any) => a.title.toLowerCase().trim()) as Array<string>;
 
-                    let show = (!this.data.filters.filterById || id.indexOf(this.data.filters.filterById.toLowerCase()) > -1) &&
+                    const show = (!this.data.filters.filterById || id.indexOf(this.data.filters.filterById.toLowerCase()) > -1) &&
                         (!this.data.filters.filterByCity || city.indexOf(this.data.filters.filterByCity.toLowerCase()) > -1) &&
                         (!this.data.filters.filterByName || name.indexOf(this.data.filters.filterByName.toLowerCase()) > -1) &&
                         (!this.data.filters.filterBySize || size.indexOf(this.data.filters.filterBySize.toLowerCase()) > -1) &&
@@ -52,10 +52,11 @@ export class FilterUnits extends Runnable {
                                 .split(',')
                                 .filter(f => p.indexOf(f) > -1)[0]
                             )[0]);
-                        // (!this.data.filters.filterByProducts ||
-                        //     !!products.filter(p => p.indexOf(this.data.filters.filterByProducts.toLowerCase()) > -1)[0]);
-                    show = show || row.id === 'fake-row';
-                    $(row).css('display', show ? 'table-row' : 'none');
+                    if (show) {
+                        $(row).removeClass('hidden');
+                    } else {
+                        $(row).addClass('hidden');
+                    }
                 });
         } catch (e) {
             throw new Error('Failed to parse unit list for filtering' + e);
@@ -104,27 +105,27 @@ export class FilterUnits extends Runnable {
             <tr>
                 <th>
                     <div class="cell-wrapper">
-                        <input id="filter-units-by-id" class="nns-input" type="text">
+                        <input id="filter-units-by-id" class="nns-input full-w" type="text">
                     </div>
                 </th>
                 <th>
                     <div class="cell-wrapper">
-                        <input id="filter-units-by-city" class="nns-input" type="text">
+                        <input id="filter-units-by-city" class="nns-input full-w" type="text">
                     </div>
                 </th>
                 <th colspan="2">
                     <div class="cell-wrapper">
-                        <input id="filter-units-by-name" class="nns-input" type="text">
+                        <input id="filter-units-by-name" class="nns-input full-w" type="text">
                     </div>
                 </th>
                 <th>
                     <div class="cell-wrapper">
-                        <input id="filter-units-by-size" class="nns-input" type="text">
+                        <input id="filter-units-by-size" class="nns-input full-w" type="text">
                     </div>
                 </th>
                 <th>
                     <div class="cell-wrapper">
-                        <input id="filter-units-by-products" class="nns-input" type="text">
+                        <input id="filter-units-by-products" class="nns-input full-w" type="text">
                         <div class="help" style="position: absolute; right: 1px; top: 2px;"
                             title="Comma separated list (e.g. tools,diesel,clothes)">?</div>
                     </div>
@@ -178,10 +179,6 @@ export class FilterUnits extends Runnable {
 
             this.saveAndFilterUnits();
         });
-
-        // fake row to prevent auto column resizing during filtering process
-        $('table.unit-list-2014 tbody')
-            .append('<tr id="fake-row"><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
 
         // restore filters from localStorage
         this.restoreFilterUnits();

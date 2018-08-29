@@ -21,8 +21,20 @@ body.unit_list table.unit-list-2014 {
     text-align: center !important;
 }
 
+.full-w {
+    width: 100%;
+}
+
 .nns-bg {
     background: #aee9ae;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.mb-3 {
+    margin-bottom: 3px;
 }
 
 .nns-table {
@@ -65,15 +77,11 @@ body.unit_list table.unit-list-2014 {
     background-color: #9E1616;
 }
 
-select.nns-select {
-    width: 100%;
-}
 select.nns-select option {
     padding: 0 3px;
 }
 
 .nns-input {
-    width: 100%;
     border: 1px;
     padding: 1px 3px;
     border-radius: 0 !important;
@@ -96,10 +104,6 @@ select.nns-select option {
     background: #0184D0;
     line-height: 15px;
     border-radius: 8px;
-}
-
-#fake-row td {
-    padding: 0;
 }
 
 /* Management - prices */
