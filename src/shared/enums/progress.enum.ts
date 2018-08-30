@@ -1,0 +1,5 @@
+export enum PROGRESS_STAGES {
+    NOT_STARTED,
+    IN_PROGRESS,
+    DONE
+}

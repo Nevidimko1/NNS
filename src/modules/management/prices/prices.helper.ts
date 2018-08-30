@@ -4,6 +4,7 @@ import { IUnitItem, IUnitItemProduct } from '../../../shared/globals/models/unit
 import { IShopProduct, IShopProductReport, IShop } from '../../../shared/models/shop.model';
 import { numberify } from '../../../utils';
 import { ICalculateChoice } from './models/calculateChoice.model';
+import { Status } from '../../../shared/status/status.singletone';
 
 export class PricesHelper {
 
@@ -76,6 +77,8 @@ export class PricesHelper {
                         .map((e: HTMLElement) => $(e).attr('name')) as string[],
                     reportsUrls = $html.find('.grid a:has(img):not(:has(img[alt]))').toArray()
                         .map((e: HTMLElement) => $(e).attr('href')) as string[],
+                    imgSrcs = $html.find('.grid a:has(img):not(:has(img[alt]))').toArray()
+                        .map((e: HTMLElement) => $(e).find('img').attr('src')) as string[],
                     produstIds = $html.find('a.popup').toArray()
                         .map((e: HTMLElement) => numberify($(e).attr('href').split('/')[9])) as number[],
                     products = produstIds.map((id: number, i) => ({
@@ -90,6 +93,7 @@ export class PricesHelper {
                         deliver: delivered[i],
                         stock: stocks[i],
                         share: shares[i],
+                        imageSrc: imgSrcs[i],
                         history: [],
                         report: null,
                         updateFieldName: updateFieldNames[i]
@@ -115,6 +119,9 @@ export class PricesHelper {
     }
 
     public static updateUnitPrices = (unitInfo: IUnitItem, priceChoice: ICalculateChoice, minPriceMultiplier: number): Promise<any> => {
+        const status = Status.getInstance();
+        let priceChangeLog = '<table style="margin-left: 15px;"><tbody>';
+
         return PricesHelper.getShopInfo(unitInfo)
             .then((shopInfo: IShop) => {
                 console.log(`Setting prices for ${unitInfo.name}`);
@@ -126,15 +133,41 @@ export class PricesHelper {
                 let data = 'action=setprice',
                     change = false;
                 shopInfo.products.forEach((product: IShopProduct, i: number) => {
-                    console.log(`${product.name}: ${product.history[0].price} -> ${newPrices[i]}`);
                     if (product.price !== newPrices[i]) {
                         data += '&' + encodeURI(product.updateFieldName + '=' + newPrices[i]);
                         change = true;
+
+                        // log
+                        const inc = product.history[0].price < newPrices[i];
+                        priceChangeLog += `
+                            <tr>
+                                <td style="position: relative; width: 16px;">
+                                    <span class="log-prod-img" style="background-image: url(${product.imageSrc});"
+                                        title="${product.name}"></span>
+                                </td>
+                                <td>${product.name}</td>
+                                <td><span class="${inc ? 'high' : 'low'}"></span></td>
+                                <td class="${inc ? 'nns-text-success' : 'nns-text-danger'}">${newPrices[i]}</td>
+                                <td>(${product.history[0].price})</td>
+                            </tr>
+                        `;
                     }
                 });
+                priceChangeLog += '</tbody></table>';
+
+                const url = `https://virtonomica.ru/${Globals.getInstance().info.realm}/main/unit/view/${unitInfo.id}/trading_hall`,
+                    unitLink = `<a target="_blank" href="${url}">${unitInfo.name} (${unitInfo.id})</a>`;
 
                 if (change) {
-                    Api.post(`https://virtonomica.ru/${Globals.getInstance().info.realm}/main/unit/view/${unitInfo.id}/trading_hall`, data);
+                    return Api.post(url, data)
+                        .then(() => {
+                            const log = `Prices have been updated for ${unitLink}<br>` + priceChangeLog;
+                            status.log(log);
+                            return Promise.resolve();
+                        });
+                } else {
+                    status.log(`No price changes needed for ${unitLink}`);
+                    return Promise.resolve();
                 }
             });
     }

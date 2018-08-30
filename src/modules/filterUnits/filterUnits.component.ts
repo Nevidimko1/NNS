@@ -13,12 +13,14 @@ export class FilterUnits extends Runnable {
 
     private readonly storageKey: string;
 
-    protected data: IFilterUnitsModel;
+    private globals: Globals;
+    private data: IFilterUnitsModel;
 
     constructor() {
         super();
 
-        this.storageKey = `${Globals.getInstance().info.realm}/${Globals.getInstance().companyInfo.id}/${PAGE_TYPES.UNIT_LIST}/FilterUnits`;
+        this.globals = Globals.getInstance();
+        this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/FilterUnits`;
         this.data = {
             filters: {
                 filterById: '',
@@ -32,6 +34,12 @@ export class FilterUnits extends Runnable {
 
     private filterUnits(): void {
         try {
+            const idFilters = this.data.filters.filterById.toLowerCase().split(',');
+            const cityFilters = this.data.filters.filterByCity.toLowerCase().split(',');
+            const nameFilters = this.data.filters.filterByName.toLowerCase().split(',');
+            const sizeFilters = this.data.filters.filterBySize.toLowerCase().split(',');
+            const productFilters = this.data.filters.filterByProducts.toLowerCase().split(',');
+
             $('table.unit-list-2014 > tbody > tr')
                 .toArray()
                 .forEach(row => {
@@ -39,19 +47,14 @@ export class FilterUnits extends Runnable {
                     const city = (String($(row).find('td.geo').text()) || '').toLowerCase().trim();
                     const name = (String($(row).find('td.info > a').text()) || '').toLowerCase().trim();
                     const size = (String($(row).find('td:eq(4)').text()) || '').toLowerCase().trim();
-                    const products = $(row).find('td.spec > img')
-                        .toArray()
+                    const product = $(row).find('td.spec > img').toArray()
                         .map((a: any) => a.title.toLowerCase().trim()) as Array<string>;
 
-                    const show = (!this.data.filters.filterById || id.indexOf(this.data.filters.filterById.toLowerCase()) > -1) &&
-                        (!this.data.filters.filterByCity || city.indexOf(this.data.filters.filterByCity.toLowerCase()) > -1) &&
-                        (!this.data.filters.filterByName || name.indexOf(this.data.filters.filterByName.toLowerCase()) > -1) &&
-                        (!this.data.filters.filterBySize || size.indexOf(this.data.filters.filterBySize.toLowerCase()) > -1) &&
-                        (!this.data.filters.filterByProducts ||
-                            !!products.filter(p => this.data.filters.filterByProducts.toLowerCase()
-                                .split(',')
-                                .filter(f => p.indexOf(f) > -1)[0]
-                            )[0]);
+                    const show = (!this.data.filters.filterById || idFilters.filter(f => id.indexOf(f) > -1)[0]) &&
+                        (!this.data.filters.filterByCity || cityFilters.filter(f => city.indexOf(f) > -1)[0]) &&
+                        (!this.data.filters.filterByName || nameFilters.filter(f => name.indexOf(f) > -1)[0]) &&
+                        (!this.data.filters.filterBySize || sizeFilters.filter(f => size.indexOf(f) > -1)[0]) &&
+                        (!this.data.filters.filterByProducts || productFilters.filter(f => product.filter(p => p.indexOf(f) > -1)[0])[0]);
                     if (show) {
                         $(row).removeClass('nns-hidden');
                     } else {
@@ -71,7 +74,7 @@ export class FilterUnits extends Runnable {
     private restoreFilterUnits(): void {
         const restored = Storage.get(this.storageKey);
         if (restored) {
-            this.data = restored.data;
+            this.data = restored.body.data;
 
             $('#filter-units-by-id').val(this.data.filters.filterById);
             $('#filter-units-by-city').val(this.data.filters.filterByCity);
@@ -93,11 +96,11 @@ export class FilterUnits extends Runnable {
                 <col style="width: 60px">
                 <col style="width: 140px">
                 <col style="width: 60%">
-                <col style="width: 50px">
+                <col style="width: 30px">
                 <col style="width: 80px">
                 <col style="width: 40%">
                 <col style="width: 60px">
-                <col style="width: 60px">
+                <col style="width: 40px">
             </colgroup>
         `);
 
@@ -126,8 +129,6 @@ export class FilterUnits extends Runnable {
                 <th>
                     <div class="cell-wrapper">
                         <input id="filter-units-by-products" class="nns-input full-w" type="text">
-                        <div class="help" style="position: absolute; right: 1px; top: 2px;"
-                            title="Comma separated list (e.g. tools,diesel,clothes)">?</div>
                     </div>
                 </th>
                 <th>
@@ -135,7 +136,11 @@ export class FilterUnits extends Runnable {
                         <button id="filters-reset" class="nns-button nns-button-danger" title="Reset filters">Clear</button>
                     </div>
                 </th>
-                <th></th>
+                <th>
+                    <div class="cell-wrapper">
+                        <div class="help" title="Filters accept comma separated list (e.g. tools,diesel,clothes)">?</div>
+                    </div>
+                </th>
             </tr>
         `);
 

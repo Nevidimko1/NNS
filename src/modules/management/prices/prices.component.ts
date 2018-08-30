@@ -3,29 +3,35 @@ import { AllCalculateChoices } from './calcuateChoices/calculateChoices.componen
 import { Globals } from '../../../shared/globals/globals.component';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
 import { PricesHelper } from './prices.helper';
-import { PAGE_TYPES } from '../../../shared/enums/pageTypes.enum';
 import { Storage } from '../../../utils/storage';
 import { IStorageProductSetting } from './models/storageProductSetting.model';
 import { numberify } from '../../../utils';
+import { Status } from '../../../shared/status/status.singletone';
+import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
 
 export class Prices {
-    private storageKey: string;
-    private storageSettings: IStorageProductSetting[];
-
     protected calculateChoices: ICalculateChoice[] = AllCalculateChoices;
     protected minPriceChoices: number[] = [0, 1, 1.1, 1.4, 1.6, 2];
 
+    private readonly storageKey: string;
+
+    private globals: Globals;
+    private status: Status;
+    private storageSettings: IStorageProductSetting[];
+
     constructor() {
-        this.storageKey = `${Globals.getInstance().info.realm}/${Globals.getInstance().companyInfo.id}/${PAGE_TYPES.UNIT_LIST}/Prices`;
+        this.globals = Globals.getInstance();
+        this.status = Status.getInstance();
+        this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/Prices`;
         this.storageSettings = [];
     }
 
     private getUnitItemByRow = (row: HTMLTableRowElement): IUnitItem => {
-        return Globals.getInstance().unitsList.filter((u: IUnitItem) => u.id === Number($(row).find('.unit_id').text()))[0];
+        return this.globals.unitsList.filter((u: IUnitItem) => u.id === Number($(row).find('.unit_id').text()))[0];
     }
 
     private createCalculateChoiceDropdown = (row: HTMLTableRowElement): string => {
-        const unitInfo: IUnitItem = Globals.getInstance().unitsList
+        const unitInfo: IUnitItem = this.globals.unitsList
             .filter((unit: IUnitItem) => unit.id === Number($(row).find('.unit_id').text()))[0];
 
         if (!unitInfo || unitInfo.unit_class_kind !== 'shop') {
@@ -59,13 +65,17 @@ export class Prices {
                 return info && info.unit_class_kind === 'shop';
             });
 
+        this.status.start(filteredRows.length);
+        this.status.log('Updating prices...', LOG_STATUS.SUCCESS);
+
         filteredRows
             .forEach((row: HTMLTableRowElement) => {
                 const info = this.getUnitItemByRow(row),
                     priceChoiceValue = $(row).find('select.price-select').val(),
                     priceChoice = this.calculateChoices.filter(c => c.label === priceChoiceValue)[0],
                     minPriceMultiplier = Number($(row).find('select.min-price-select').val());
-                PricesHelper.updateUnitPrices(info, priceChoice, minPriceMultiplier);
+                PricesHelper.updateUnitPrices(info, priceChoice, minPriceMultiplier)
+                    .then(() => this.status.progressTick());
             });
     }
 
@@ -75,7 +85,7 @@ export class Prices {
 
     private loadSettings = (): void => {
         const restored = Storage.get(this.storageKey),
-            productSettings: IStorageProductSetting[] = restored ? restored.data : [];
+            productSettings: IStorageProductSetting[] = restored ? restored.body.data : [];
 
         this.storageSettings = productSettings;
         productSettings.forEach((productSetting: IStorageProductSetting) => {
@@ -90,7 +100,7 @@ export class Prices {
     }
 
     public addColumn = () => {
-        $('table.unit-list-2014 colgroup').append(`<col style="width: 100px;">`);
+        $('table.unit-list-2014 colgroup').append(`<col style="width: 80px;">`);
 
         $('table.unit-list-2014 thead tr').toArray().forEach(row => {
             $(row).append(`<th class="management-separator prices center"></th>`);

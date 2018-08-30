@@ -37,7 +37,7 @@ export interface IShopProduct extends IUnitItemProduct {
     share: number;
     history: IShopProductHistory[];
     report: IShopProductReport;
-
+    imageSrc: string;
     /**
      * field name for POST call
      */
