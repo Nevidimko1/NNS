@@ -1,6 +1,6 @@
-import { MarketShareCalculateChoice } from './marketShare';
+import { SharePriceStrategy } from './base/marketShare';
 
-export class Market20pCalculateChoice extends MarketShareCalculateChoice {
+export class Market20pPriceStrategy extends SharePriceStrategy {
     constructor() {
         super();
         this.label = 'Market 20%';

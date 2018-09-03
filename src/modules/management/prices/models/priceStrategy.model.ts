@@ -1,12 +1,12 @@
 import { IShopProduct } from '../../../../shared/models/shop.model';
 
-export interface ICalculateChoice {
+export interface IPriceStrategy {
     label: string;
     description: string;
 
     calculate(product: IShopProduct): number;
 }
 
-export interface ICalculateShareChoice extends ICalculateChoice {
+export interface ISharePriceStrategy extends IPriceStrategy {
     share: number;
 }

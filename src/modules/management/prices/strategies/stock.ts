@@ -1,8 +1,8 @@
-import { ICalculateChoice } from '../models/calculateChoice.model';
+import { IPriceStrategy } from '../models/priceStrategy.model';
 import { IShopProduct } from '../../../../shared/models/shop.model';
 import { numberify } from '../../../../utils';
 
-export class StockCalculateChoice implements ICalculateChoice {
+export class StockPriceStrategy implements IPriceStrategy {
     public label: string;
     public description: string;
 

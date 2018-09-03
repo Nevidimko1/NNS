@@ -3,7 +3,7 @@ import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem, IUnitItemProduct } from '../../../shared/globals/models/unitInfo.model';
 import { IShopProduct, IShopProductReport, IShop } from '../../../shared/models/shop.model';
 import { numberify } from '../../../utils';
-import { ICalculateChoice } from './models/calculateChoice.model';
+import { IPriceStrategy } from './models/priceStrategy.model';
 import { Status } from '../../../shared/status/status.singletone';
 
 export class PricesService {
@@ -118,7 +118,7 @@ export class PricesService {
             .then((shopInfo: IShop) => this.populateProductsHistories(shopInfo));
     }
 
-    public updateUnitPrices = (unitInfo: IUnitItem, priceChoice: ICalculateChoice, minPriceMultiplier: number): Promise<any> => {
+    public updateUnitPrices = (unitInfo: IUnitItem, priceStrategy: IPriceStrategy, minPriceMultiplier: number): Promise<any> => {
         const status = Status.getInstance();
         let priceChangeLog = '<table style="margin-left: 15px;"><tbody>';
 
@@ -128,7 +128,7 @@ export class PricesService {
                 const newPrices = shopInfo.products
                     .map((product: IShopProduct) => {
                         const prime = Math.round(product.purch * minPriceMultiplier);
-                        return Math.max(priceChoice.calculate(product), prime);
+                        return Math.max(priceStrategy.calculate(product), prime);
                     });
                 let data = 'action=setprice',
                     change = false;

@@ -1,9 +1,9 @@
-import { ICalculateShareChoice } from '../models/calculateChoice.model';
-import { IShopProduct } from '../../../../shared/models/shop.model';
-import { CalcFunctions } from '../../../../utils/calcFunctions';
-import { numberify } from '../../../../utils';
+import { ISharePriceStrategy } from '../../models/priceStrategy.model';
+import { IShopProduct } from '../../../../../shared/models/shop.model';
+import { CalcFunctions } from '../../../../../utils/calcFunctions';
+import { numberify } from '../../../../../utils';
 
-export class MarketShareCalculateChoice implements ICalculateShareChoice {
+export class SharePriceStrategy implements ISharePriceStrategy {
     public label: string;
     public description: string;
     public share: number;

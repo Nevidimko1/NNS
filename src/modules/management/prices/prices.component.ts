@@ -1,5 +1,5 @@
-import { ICalculateChoice } from './models/calculateChoice.model';
-import { AllCalculateChoices } from './calcuateChoices/calculateChoices.component';
+import { IPriceStrategy } from './models/priceStrategy.model';
+import { PriceStrategies } from './strategies/strategies.component';
 import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
 import { PricesService } from './prices.service';
@@ -10,8 +10,8 @@ import { Status } from '../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
 
 export class Prices {
-    protected calculateChoices: ICalculateChoice[] = AllCalculateChoices;
-    protected minPriceChoices: number[] = [0, 1, 1.1, 1.4, 1.6, 2];
+    protected priceStrategies: IPriceStrategy[] = PriceStrategies;
+    protected minPrices: number[] = [0, 1, 1.1, 1.4, 1.6, 2];
 
     private readonly storageKey: string;
 
@@ -32,7 +32,7 @@ export class Prices {
         return this.globals.unitsList.filter((u: IUnitItem) => u.id === Number($(row).find('.unit_id').text()))[0];
     }
 
-    private createCalculateChoiceDropdown = (row: HTMLTableRowElement): string => {
+    private createPriceStrategyDropdown = (row: HTMLTableRowElement): string => {
         const unitInfo: IUnitItem = this.globals.unitsList
             .filter((unit: IUnitItem) => unit.id === Number($(row).find('.unit_id').text()))[0];
 
@@ -43,15 +43,15 @@ export class Prices {
         return `
             <select class="price-select nns-select full-w mb-3">
                 ${
-                    this.calculateChoices.map((choice: ICalculateChoice) => {
-                        return `<option title="${choice.description}">${choice.label}</option>`;
+                    this.priceStrategies.map((item: IPriceStrategy) => {
+                        return `<option title="${item.description}">${item.label}</option>`;
                     }).join('')
                 }
             </select>
             <select class="min-price-select nns-select full-w">
                 ${
-                    this.minPriceChoices.map((choice: number) => {
-                        return `<option title="minPrice = purchasePrice * ${choice}">${choice}</option>`;
+                    this.minPrices.map((item: number) => {
+                        return `<option title="minPrice = purchasePrice * ${item}">${item}</option>`;
                     }).join('')
                 }
             </select>
@@ -73,10 +73,10 @@ export class Prices {
         filteredRows
             .forEach((row: HTMLTableRowElement) => {
                 const info = this.getUnitItemByRow(row),
-                    priceChoiceValue = $(row).find('select.price-select').val(),
-                    priceChoice = this.calculateChoices.filter(c => c.label === priceChoiceValue)[0],
+                    priceStrategyValue = $(row).find('select.price-select').val(),
+                    priceStrategy = this.priceStrategies.filter(c => c.label === priceStrategyValue)[0],
                     minPriceMultiplier = Number($(row).find('select.min-price-select').val());
-                this.service.updateUnitPrices(info, priceChoice, minPriceMultiplier)
+                this.service.updateUnitPrices(info, priceStrategy, minPriceMultiplier)
                     .then(() => this.status.progressTick());
             });
     }
@@ -95,14 +95,14 @@ export class Prices {
                 .toArray()
                 .filter((r: HTMLTableRowElement) => numberify($(r).find('.unit_id').text()) === productSetting.unitId)[0];
             if (row) {
-                $(row).find('select.price-select').val(productSetting.priceChoice);
-                $(row).find('select.min-price-select').val(productSetting.minPriceChoice);
+                $(row).find('select.price-select').val(productSetting.priceStrategy);
+                $(row).find('select.min-price-select').val(productSetting.minPrice);
             }
         });
     }
 
     public addColumn = () => {
-        $('table.unit-list-2014 colgroup').append(`<col style="width: 80px;">`);
+        $('table.unit-list-2014 colgroup').append(`<col style="width: 90px;">`);
 
         $('table.unit-list-2014 thead tr').toArray().forEach(row => {
             $(row).append(`<th class="management-separator prices center"></th>`);
@@ -117,7 +117,7 @@ export class Prices {
             .forEach((row: HTMLTableRowElement) => {
                 $(row).append(`
                     <td class="management-separator prices">
-                        ${this.createCalculateChoiceDropdown(row)}
+                        ${this.createPriceStrategyDropdown(row)}
                     </td>
                 `);
         });
@@ -129,12 +129,12 @@ export class Prices {
                 existingSettings = this.storageSettings.filter((s: IPricesProductSettings) => s.unitId === unitId)[0];
 
             if (existingSettings) {
-                existingSettings.priceChoice = $(e.target).val() as string;
+                existingSettings.priceStrategy = $(e.target).val() as string;
             } else {
                 this.storageSettings.push({
                     unitId,
-                    priceChoice: $(e.target).val() as string,
-                    minPriceChoice: String(this.minPriceChoices[0])
+                    priceStrategy: $(e.target).val() as string,
+                    minPrice: String(this.minPrices[0])
                 });
             }
             this.updateSettings();
@@ -147,12 +147,12 @@ export class Prices {
                 existingSettings = this.storageSettings.filter((s: IPricesProductSettings) => s.unitId === unitId)[0];
 
             if (existingSettings) {
-                existingSettings.minPriceChoice = $(e.target).val() as string;
+                existingSettings.minPrice = $(e.target).val() as string;
             } else {
                 this.storageSettings.push({
                     unitId,
-                    priceChoice: this.calculateChoices[0].label,
-                    minPriceChoice: $(e.target).val() as string
+                    priceStrategy: this.priceStrategies[0].label,
+                    minPrice: $(e.target).val() as string
                 });
             }
             this.updateSettings();

@@ -1,6 +1,6 @@
-import { ICalculateChoice } from '../models/calculateChoice.model';
+import { IPriceStrategy } from '../models/priceStrategy.model';
 
-export class NotSelectedCalculateChoice implements ICalculateChoice {
+export class NotSelectedPriceStrategy implements IPriceStrategy {
     public label: string;
     public description: string;
 
