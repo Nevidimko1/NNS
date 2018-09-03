@@ -4,7 +4,7 @@ import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
 import { PricesService } from './prices.service';
 import { Storage } from '../../../utils/storage';
-import { IStorageProductSetting } from './models/storageProductSetting.model';
+import { IPricesProductSettings } from './models/pricesProduct.settings.model';
 import { numberify } from '../../../utils';
 import { Status } from '../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
@@ -18,7 +18,7 @@ export class Prices {
     private service: PricesService;
     private globals: Globals;
     private status: Status;
-    private storageSettings: IStorageProductSetting[];
+    private storageSettings: IPricesProductSettings[];
 
     constructor() {
         this.service = new PricesService();
@@ -87,10 +87,10 @@ export class Prices {
 
     private loadSettings = (): void => {
         const restored = Storage.get(this.storageKey),
-            productSettings: IStorageProductSetting[] = restored ? restored.body.data : [];
+            productSettings: IPricesProductSettings[] = restored ? restored.body.data : [];
 
         this.storageSettings = productSettings;
-        productSettings.forEach((productSetting: IStorageProductSetting) => {
+        productSettings.forEach((productSetting: IPricesProductSettings) => {
             const row = $('table.unit-list-2014 tbody tr')
                 .toArray()
                 .filter((r: HTMLTableRowElement) => numberify($(r).find('.unit_id').text()) === productSetting.unitId)[0];
@@ -126,7 +126,7 @@ export class Prices {
         $('select.price-select').on('change', (e) => {
             const row = $(e.target).parents('tr').get(),
                 unitId = Number($(row).find('.unit_id').text()),
-                existingSettings = this.storageSettings.filter((s: IStorageProductSetting) => s.unitId === unitId)[0];
+                existingSettings = this.storageSettings.filter((s: IPricesProductSettings) => s.unitId === unitId)[0];
 
             if (existingSettings) {
                 existingSettings.priceChoice = $(e.target).val() as string;
@@ -144,7 +144,7 @@ export class Prices {
         $('select.min-price-select').on('change', (e) => {
             const row = $(e.target).parents('tr').get(),
                 unitId = Number($(row).find('.unit_id').text()),
-                existingSettings = this.storageSettings.filter((s: IStorageProductSetting) => s.unitId === unitId)[0];
+                existingSettings = this.storageSettings.filter((s: IPricesProductSettings) => s.unitId === unitId)[0];
 
             if (existingSettings) {
                 existingSettings.minPriceChoice = $(e.target).val() as string;

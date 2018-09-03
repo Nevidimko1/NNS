@@ -36,8 +36,17 @@ body.unit_list table.unit-list-2014 {
 .mb-3 {
     margin-bottom: 3px;
 }
+.mr-10 {
+    margin-right: 10px;
+}
 .pdleft-15 {
     padding-left: 15px;
+}
+.d-flex {
+    display: flex;
+}
+.flex-grow {
+    flex-grow: 1;
 }
 
 .nns-table {
@@ -152,9 +161,15 @@ select.nns-select option {
     padding: 6px 3px;
     background: #4e5357;
 }
+#status-bar .header .action-item {
+    padding-top: 1px;
+    width: 15px;
+    text-align: center;
+    cursor: pointer;
+}
+
 #status-bar .body {
     display: flex;
-    height: 160px;
     border-left: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     border-right: 1px solid #ddd;
