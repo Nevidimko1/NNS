@@ -2,14 +2,10 @@ import { StatusBarService } from './statusBar.service';
 import { Status } from '../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
 import { PROGRESS_STAGES } from '../../../shared/enums/progress.enum';
-import { Globals } from '../../../shared/globals/globals.singletone';
-import { Storage } from '../../../utils/storage';
 import { IStatusBarSettings } from './models/statusBar.settings.model';
+import { ManagementSubComponent } from '../common/managementSub.component';
 
-export class StatusBar {
-    private readonly storageKey: string;
-
-    private globals: Globals;
+export class StatusBar extends ManagementSubComponent {
     private service: StatusBarService;
     private status: Status;
 
@@ -17,11 +13,10 @@ export class StatusBar {
     private size: number;
 
     constructor() {
-        this.globals = Globals.getInstance();
+        super('StatusBar');
+
         this.service = new StatusBarService();
         this.status = Status.getInstance(this.onStatusChange);
-
-        this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/StatusBar`;
 
         this.minimized = false;
         this.size = 1;
@@ -74,12 +69,14 @@ export class StatusBar {
             minimized: this.minimized,
             size: this.size
         };
-        Storage.set(this.storageKey, settings, new Date());
+        this.saveSettings(settings);
     }
 
     private loadSettings = (): void => {
-        const restored = Storage.get(this.storageKey),
-            settings: IStatusBarSettings = restored ? restored.body.data : {};
+        const settings = <IStatusBarSettings>this.getSettings();
+        if (!settings) {
+            return;
+        }
 
         this.minimized = settings.minimized || false;
         this.size = settings.size || 1;
@@ -87,7 +84,7 @@ export class StatusBar {
         this.resize(this.size);
     }
 
-    public addStatusBar = (): void => {
+    public init = (): void => {
         $('table.unit-list-2014').before(`
             <div id="status-bar">
                 <div class="header d-flex">

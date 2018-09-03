@@ -1,35 +1,36 @@
 import { IPriceStrategy } from './models/priceStrategy.model';
 import { PriceStrategies } from './strategies/strategies.component';
-import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
-import { PricesService } from './prices.service';
-import { Storage } from '../../../utils/storage';
+import { RetailPricesService } from './retailPrices.service';
 import { IPricesProductSettings } from './models/pricesProduct.settings.model';
 import { numberify } from '../../../utils';
 import { Status } from '../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
+import { ManagementSubComponent } from '../common/managementSub.component';
 
-export class Prices {
+export class RetailPricesComponent extends ManagementSubComponent {
     protected priceStrategies: IPriceStrategy[] = PriceStrategies;
     protected minPrices: number[] = [0, 1, 1.1, 1.4, 1.6, 2];
 
-    private readonly storageKey: string;
-
-    private service: PricesService;
-    private globals: Globals;
+    private service: RetailPricesService;
     private status: Status;
     private storageSettings: IPricesProductSettings[];
 
     constructor() {
-        this.service = new PricesService();
-        this.globals = Globals.getInstance();
+        super('RetailPrices');
+
+        this.service = new RetailPricesService();
         this.status = Status.getInstance();
-        this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/Prices`;
         this.storageSettings = [];
     }
 
     private getUnitItemByRow = (row: HTMLTableRowElement): IUnitItem => {
         return this.globals.unitsList.filter((u: IUnitItem) => u.id === Number($(row).find('.unit_id').text()))[0];
+    }
+
+    private getSelectedStrategy = (row: HTMLTableRowElement): IPriceStrategy => {
+        const priceStrategyValue = $(row).find('select.price-select').val();
+        return this.priceStrategies.filter(c => c.label === priceStrategyValue)[0];
     }
 
     private createPriceStrategyDropdown = (row: HTMLTableRowElement): string => {
@@ -65,7 +66,16 @@ export class Prices {
             .filter((row: HTMLTableRowElement) => {
                 const info = this.getUnitItemByRow(row);
                 return info && info.unit_class_kind === 'shop';
+            })
+            .filter((row: HTMLTableRowElement) => {
+                const strategy = this.getSelectedStrategy(row);
+                return strategy && !strategy.skip;
             });
+
+        if (!filteredRows.length) {
+            this.status.log('No units to update price', LOG_STATUS.SUCCESS);
+            return;
+        }
 
         this.status.start(filteredRows.length);
         this.status.log('Updating prices...', LOG_STATUS.SUCCESS);
@@ -73,24 +83,24 @@ export class Prices {
         filteredRows
             .forEach((row: HTMLTableRowElement) => {
                 const info = this.getUnitItemByRow(row),
-                    priceStrategyValue = $(row).find('select.price-select').val(),
-                    priceStrategy = this.priceStrategies.filter(c => c.label === priceStrategyValue)[0],
+                    priceStrategy = this.getSelectedStrategy(row),
                     minPriceMultiplier = Number($(row).find('select.min-price-select').val());
+
                 this.service.updateUnitPrices(info, priceStrategy, minPriceMultiplier)
                     .then(() => this.status.progressTick());
             });
     }
 
-    private updateSettings = (): void => {
-        Storage.set(this.storageKey, this.storageSettings, new Date());
-    }
+    private updateSettings = (): void => this.saveSettings(this.storageSettings);
 
     private loadSettings = (): void => {
-        const restored = Storage.get(this.storageKey),
-            productSettings: IPricesProductSettings[] = restored ? restored.body.data : [];
+        const settings = <IPricesProductSettings[]>this.getSettings();
+        if (!settings) {
+            return;
+        }
 
-        this.storageSettings = productSettings;
-        productSettings.forEach((productSetting: IPricesProductSettings) => {
+        this.storageSettings = settings;
+        settings.forEach((productSetting: IPricesProductSettings) => {
             const row = $('table.unit-list-2014 tbody tr')
                 .toArray()
                 .filter((r: HTMLTableRowElement) => numberify($(r).find('.unit_id').text()) === productSetting.unitId)[0];
@@ -101,7 +111,7 @@ export class Prices {
         });
     }
 
-    public addColumn = () => {
+    public init = () => {
         $('table.unit-list-2014 colgroup').append(`<col style="width: 90px;">`);
 
         $('table.unit-list-2014 thead tr').toArray().forEach(row => {

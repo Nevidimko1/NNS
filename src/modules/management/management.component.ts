@@ -2,7 +2,7 @@ import { Runnable } from '../common/runnable';
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
-import { Prices } from './prices/prices.component';
+import { RetailPricesComponent } from './retailPrices/retailPrices.component';
 import { StatusBar } from './statusBar/statusBar.component';
 
 export class Management extends Runnable {
@@ -11,18 +11,18 @@ export class Management extends Runnable {
     protected readonly unitPages = [UNIT_PAGES.ANY];
 
     private statusBar: StatusBar;
-    private prices: Prices;
+    private retailPrices: RetailPricesComponent;
 
     constructor() {
         super();
 
         this.statusBar = new StatusBar();
-        this.prices = new Prices();
+        this.retailPrices = new RetailPricesComponent();
     }
 
     protected run(): void {
-        this.statusBar.addStatusBar();
-        this.prices.addColumn();
+        this.statusBar.init();
+        this.retailPrices.init();
     }
 
 }

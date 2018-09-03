@@ -6,7 +6,7 @@ import { numberify } from '../../../utils';
 import { IPriceStrategy } from './models/priceStrategy.model';
 import { Status } from '../../../shared/status/status.singletone';
 
-export class PricesService {
+export class RetailPricesService {
 
     private populateProductsHistories = (shopInfo: IShop): Promise<IShop> => {
         const realm = Globals.getInstance().info.realm;
