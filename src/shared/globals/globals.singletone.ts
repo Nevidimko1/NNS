@@ -10,11 +10,13 @@ import { PAGE_TYPES } from '../enums/pageTypes.enum';
 import { IGlobals } from './models/globals.model';
 import { Api } from '../../utils/api';
 import { IUnitItem, IUnitsResponse } from './models/unitInfo.model';
-import { GlobalsHelper } from './globals.helper';
+import { GlobalsService } from './globals.service';
 import { IUnitTypesResponse, IUnitType } from './models/unitType.model';
 
 export class Globals implements IGlobals {
     private static instance: Globals;
+
+    private service: GlobalsService;
 
     protected url: string;
 
@@ -24,7 +26,9 @@ export class Globals implements IGlobals {
     public unitsList: IUnitItem[];
     public unitTypes: IUnitType[];
 
-    private constructor() { }
+    private constructor() {
+        this.service = new GlobalsService();
+    }
 
     private getPageInfo = (): IPageInfo => {
         const pageInfo = <IPageInfo>{
@@ -34,11 +38,10 @@ export class Globals implements IGlobals {
             unitPage: null,
         };
 
-        if (this.url.match(/view\/\d+\/(unit_list\/$|unit_list$)/)) {
+        const unitList = this.url.match(/view\/(\d+)(\/unit_list\/$|unit_list$)?/);
+        if (unitList.length === 3 && Number(unitList[1]) === this.companyInfo.id) {
             pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
-        }
-
-        if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
+        } else if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
             pageInfo.pageType = PAGE_TYPES.UNIT_PAGE;
             pageInfo.unitId = this.url.match(/[0-9]{1,12}/)[0];
 
@@ -58,14 +61,14 @@ export class Globals implements IGlobals {
     private fetchUnitTypesList = (): Promise<any> => {
         return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/unittype/browse`)
             .then((response: IUnitTypesResponse) => {
-                this.unitTypes = GlobalsHelper.parseUnitTypesResponse(response);
+                this.unitTypes = this.service.parseUnitTypesResponse(response);
             });
     }
 
     private fetchUnitsList = (): Promise<any> => {
         return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=4000`)
             .then((response: IUnitsResponse) => {
-                this.unitsList = GlobalsHelper.parseUnitsResponse(response);
+                this.unitsList = this.service.parseUnitsResponse(response);
             });
     }
 
@@ -79,10 +82,10 @@ export class Globals implements IGlobals {
                     date: $('.date_time').html().split('.')[0].trim()
                 };
 
-                this.pageInfo = this.getPageInfo();
                 this.companyInfo = {
-                    id: $('a.dashboard').prop('href') ? $('a.dashboard').prop('href').match(/view\/(\d+)\/dashboard/)[1] : 0
+                    id: $('a.dashboard').prop('href') ? Number($('a.dashboard').prop('href').match(/view\/(\d+)\/dashboard/)[1]) : 0
                 };
+                this.pageInfo = this.getPageInfo();
                 resolve();
             } catch (e) {
                 reject(e);

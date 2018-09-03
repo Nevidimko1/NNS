@@ -4,13 +4,13 @@ import {
     IUnitItem,
     IUnitsResponseIndicator,
     IUnitItemProduct
-} from '../globals/models/unitInfo.model';
+} from './models/unitInfo.model';
 import { flatMap } from '../../utils';
 import { IUnitType, IUnitTypesResponse, IUnitTypesResponseItem } from './models/unitType.model';
 
-export class GlobalsHelper {
+export class GlobalsService {
 
-    private static mapProducts = (responseItem: IUnitsResponseDataItem): IUnitItemProduct[] => {
+    private mapProducts = (responseItem: IUnitsResponseDataItem): IUnitItemProduct[] => {
         const idsString = (responseItem.product_ids || '{}'),
             ids = idsString
                 .slice(1, idsString.length - 1)
@@ -36,7 +36,7 @@ export class GlobalsHelper {
         }) || [];
     }
 
-    public static parseUnitsResponse = (response: IUnitsResponse): IUnitItem[] => {
+    public parseUnitsResponse = (response: IUnitsResponse): IUnitItem[] => {
         return flatMap(response.data)
             .map((responseItem: IUnitsResponseDataItem) => {
                 return {
@@ -62,7 +62,7 @@ export class GlobalsHelper {
                     market_status: responseItem.market_status,
                     time_to_build: Number(responseItem.time_to_build),
                     office_sort: Number(responseItem.office_sort),
-                    products: GlobalsHelper.mapProducts(responseItem),
+                    products: this.mapProducts(responseItem),
                     indicators: Object.keys(response.indicators)
                         .filter((key: string) => Number(responseItem.id) === Number(key))
                         .map((key: string) => flatMap(response.indicators[key])
@@ -76,7 +76,7 @@ export class GlobalsHelper {
             });
     }
 
-    public static parseUnitTypesResponse = (response: IUnitTypesResponse): IUnitType[] => {
+    public parseUnitTypesResponse = (response: IUnitTypesResponse): IUnitType[] => {
         return flatMap(response)
             .map((responseItem: IUnitTypesResponseItem) => ({
                 ...responseItem,

@@ -1,6 +1,6 @@
 import { FilterUnits } from './modules/filterUnits/filterUnits.component';
 import { Management } from './modules/management/management.component';
-import { Globals } from './shared/globals/globals.component';
+import { Globals } from './shared/globals/globals.singletone';
 
 export const run = () => {
     Globals.getInstance().init()

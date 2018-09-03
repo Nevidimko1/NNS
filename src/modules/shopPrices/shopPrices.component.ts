@@ -3,7 +3,7 @@ import { Runnable } from '../common/runnable';
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
-import { calcRowPrice, getProductInfo } from './shopPrices.helper';
+import { ShopPricesService } from './shopPrices.service';
 
 export class ShopPrices extends Runnable {
     protected readonly pageTypes = [PAGE_TYPES.UNIT_PAGE];
@@ -14,10 +14,13 @@ export class ShopPrices extends Runnable {
     protected readonly BRAND_BONUS = '20%';
     protected readonly MIN_PRICE_MULTIPLIER = '200%';
 
+    private service: ShopPricesService;
     private productsInfo: IProductInfo[];
 
     constructor() {
         super();
+
+        this.service = new ShopPricesService();
     }
 
     protected run() {
@@ -62,7 +65,7 @@ export class ShopPrices extends Runnable {
             }
 
             rows.forEach(function(row: JQuery<HTMLTableRowElement>, i: number) {
-                $(row).find('.nns-itemPrice').val(calcRowPrice(row, that.productsInfo[i]));
+                $(row).find('.nns-itemPrice').val(this.service.calcRowPrice(row, that.productsInfo[i]));
             });
         });
 
@@ -94,7 +97,7 @@ export class ShopPrices extends Runnable {
                     return;
                 }
 
-                $(rows[i]).find('.nns-itemPrice').val(calcRowPrice(row, that.productsInfo[i]));
+                $(rows[i]).find('.nns-itemPrice').val(that.service.calcRowPrice(row, that.productsInfo[i]));
             });
 
             // Скопировать продукт логика
@@ -106,7 +109,7 @@ export class ShopPrices extends Runnable {
 
         // получаем информацию местных поставщиков о продуктах
         const promises: Promise<IProductInfo>[] = rows.map(function(row) {
-            return getProductInfo($(row).find('td:eq(2) a').attr('href'));
+            return this.service.getProductInfo($(row).find('td:eq(2) a').attr('href'));
         });
 
         $('table.grid:eq(0) > tbody > tr:eq(0) > th:last-child').append('<div class="localInfoColor">Местные поставщики</div>');

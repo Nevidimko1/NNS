@@ -1,14 +1,14 @@
 import { Api } from '../../../utils/api';
-import { Globals } from '../../../shared/globals/globals.component';
+import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem, IUnitItemProduct } from '../../../shared/globals/models/unitInfo.model';
 import { IShopProduct, IShopProductReport, IShop } from '../../../shared/models/shop.model';
 import { numberify } from '../../../utils';
 import { ICalculateChoice } from './models/calculateChoice.model';
 import { Status } from '../../../shared/status/status.singletone';
 
-export class PricesHelper {
+export class PricesService {
 
-    private static populateProductsHistories = (shopInfo: IShop): Promise<IShop> => {
+    private populateProductsHistories = (shopInfo: IShop): Promise<IShop> => {
         const realm = Globals.getInstance().info.realm;
         const promises = shopInfo.products
             .map((product: IShopProduct) => {
@@ -34,7 +34,7 @@ export class PricesHelper {
             });
     }
 
-    private static populateProductReport = (url: string): Promise<IShopProductReport> => {
+    private populateProductReport = (url: string): Promise<IShopProductReport> => {
         return Api.get(url)
             .then((html: string) => {
                 const infoTable = $(html).find('#mainContent > table:eq(1) > tbody > tr:eq(0) > td:eq(2) > table');
@@ -52,7 +52,7 @@ export class PricesHelper {
             });
     }
 
-    public static getShopInfo = (unit: IUnitItem): Promise<IShop> => {
+    public getShopInfo = (unit: IUnitItem): Promise<IShop> => {
         return Api.get(`https://virtonomica.ru/${Globals.getInstance().info.realm}/main/unit/view/${unit.id}/trading_hall`)
             .then((html: string) => {
                 const $html: JQuery = $(html);
@@ -100,7 +100,7 @@ export class PricesHelper {
                     }));
 
                 // populate reports
-                const promises = reportsUrls.map((url: string) => PricesHelper.populateProductReport(url));
+                const promises = reportsUrls.map((url: string) => this.populateProductReport(url));
 
                 return Promise.all(promises)
                     .then((reports: IShopProductReport[]) => {
@@ -115,14 +115,14 @@ export class PricesHelper {
                         };
                     });
             })
-            .then((shopInfo: IShop) => PricesHelper.populateProductsHistories(shopInfo));
+            .then((shopInfo: IShop) => this.populateProductsHistories(shopInfo));
     }
 
-    public static updateUnitPrices = (unitInfo: IUnitItem, priceChoice: ICalculateChoice, minPriceMultiplier: number): Promise<any> => {
+    public updateUnitPrices = (unitInfo: IUnitItem, priceChoice: ICalculateChoice, minPriceMultiplier: number): Promise<any> => {
         const status = Status.getInstance();
         let priceChangeLog = '<table style="margin-left: 15px;"><tbody>';
 
-        return PricesHelper.getShopInfo(unitInfo)
+        return this.getShopInfo(unitInfo)
             .then((shopInfo: IShop) => {
                 console.log(`Setting prices for ${unitInfo.name}`);
                 const newPrices = shopInfo.products

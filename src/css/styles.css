@@ -196,7 +196,7 @@ select.nns-select option {
     height: 16px;
     position: absolute;
     left: -6px;
-    top: -2px;
+    top: 0;
 }
 
 body.unit_list table.unit-list-2014 th {

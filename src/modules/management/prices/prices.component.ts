@@ -1,8 +1,8 @@
 import { ICalculateChoice } from './models/calculateChoice.model';
 import { AllCalculateChoices } from './calcuateChoices/calculateChoices.component';
-import { Globals } from '../../../shared/globals/globals.component';
+import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
-import { PricesHelper } from './prices.helper';
+import { PricesService } from './prices.service';
 import { Storage } from '../../../utils/storage';
 import { IStorageProductSetting } from './models/storageProductSetting.model';
 import { numberify } from '../../../utils';
@@ -15,11 +15,13 @@ export class Prices {
 
     private readonly storageKey: string;
 
+    private service: PricesService;
     private globals: Globals;
     private status: Status;
     private storageSettings: IStorageProductSetting[];
 
     constructor() {
+        this.service = new PricesService();
         this.globals = Globals.getInstance();
         this.status = Status.getInstance();
         this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/Prices`;
@@ -74,7 +76,7 @@ export class Prices {
                     priceChoiceValue = $(row).find('select.price-select').val(),
                     priceChoice = this.calculateChoices.filter(c => c.label === priceChoiceValue)[0],
                     minPriceMultiplier = Number($(row).find('select.min-price-select').val());
-                PricesHelper.updateUnitPrices(info, priceChoice, minPriceMultiplier)
+                this.service.updateUnitPrices(info, priceChoice, minPriceMultiplier)
                     .then(() => this.status.progressTick());
             });
     }
