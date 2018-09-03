@@ -1,6 +1,6 @@
-import { IRetailPriceStrategy } from '../models/priceStrategy.model';
+import { IRetailSupplyStrategy } from '../../models/retailSupplyStrategy.model';
 
-export class NotSelectedPriceStrategy implements IRetailPriceStrategy {
+export class NotSelectedRetailSupplyStrategy implements IRetailSupplyStrategy {
     public label: string;
     public description: string;
     public skip: boolean;

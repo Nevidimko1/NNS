@@ -1,13 +1,9 @@
 import { IShopProduct } from '../../../../shared/models/shop.model';
 
-export interface IRetailPriceStrategy {
+export interface IRetailSupplyStrategy {
     label: string;
     description: string;
     skip?: boolean;
 
     calculate(product: IShopProduct): number;
-}
-
-export interface ISharePriceStrategy extends IRetailPriceStrategy {
-    share: number;
 }

@@ -3,7 +3,7 @@ import { Globals } from '../../../shared/globals/globals.singletone';
 import { IUnitItem, IUnitItemProduct } from '../../../shared/globals/models/unitInfo.model';
 import { IShopProduct, IShopProductReport, IShop } from '../../../shared/models/shop.model';
 import { numberify } from '../../../utils';
-import { IPriceStrategy } from './models/priceStrategy.model';
+import { IRetailPriceStrategy } from './models/priceStrategy.model';
 import { Status } from '../../../shared/status/status.singletone';
 
 export class RetailPricesService {
@@ -118,7 +118,7 @@ export class RetailPricesService {
             .then((shopInfo: IShop) => this.populateProductsHistories(shopInfo));
     }
 
-    public updateUnitPrices = (unitInfo: IUnitItem, priceStrategy: IPriceStrategy, minPriceMultiplier: number): Promise<any> => {
+    public updateUnitPrices = (unitInfo: IUnitItem, priceStrategy: IRetailPriceStrategy, minPriceMultiplier: number): Promise<any> => {
         const status = Status.getInstance();
         let priceChangeLog = '<table style="margin-left: 15px;"><tbody>';
 

@@ -5,7 +5,7 @@ import { Market20pPriceStrategy } from './market20p';
 import { StockPriceStrategy } from './stock';
 import { ZeroPriceStrategy } from './zero';
 
-export const PriceStrategies = [
+export const RetailPriceStrategies = [
     new NotSelectedPriceStrategy(),
     new ZeroPriceStrategy(),
     new Market6pPriceStrategy(),

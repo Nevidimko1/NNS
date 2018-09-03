@@ -1,8 +1,8 @@
-import { IPriceStrategy } from '../models/priceStrategy.model';
+import { IRetailPriceStrategy } from '../models/priceStrategy.model';
 import { IShopProduct } from '../../../../shared/models/shop.model';
 import { numberify } from '../../../../utils';
 
-export class StockPriceStrategy implements IPriceStrategy {
+export class StockPriceStrategy implements IRetailPriceStrategy {
     public label: string;
     public description: string;
 

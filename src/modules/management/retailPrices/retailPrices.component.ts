@@ -1,5 +1,5 @@
-import { IPriceStrategy } from './models/priceStrategy.model';
-import { PriceStrategies } from './strategies/strategies.component';
+import { IRetailPriceStrategy } from './models/priceStrategy.model';
+import { RetailPriceStrategies } from './strategies/retailPriceStrategies.component';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
 import { RetailPricesService } from './retailPrices.service';
 import { IPricesProductSettings } from './models/pricesProduct.settings.model';
@@ -9,7 +9,7 @@ import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
 import { ManagementSubComponent } from '../common/managementSub.component';
 
 export class RetailPricesComponent extends ManagementSubComponent {
-    protected priceStrategies: IPriceStrategy[] = PriceStrategies;
+    protected priceStrategies: IRetailPriceStrategy[] = RetailPriceStrategies;
     protected minPrices: number[] = [0, 1, 1.1, 1.4, 1.6, 2];
 
     private service: RetailPricesService;
@@ -24,11 +24,7 @@ export class RetailPricesComponent extends ManagementSubComponent {
         this.storageSettings = [];
     }
 
-    private getUnitItemByRow = (row: HTMLTableRowElement): IUnitItem => {
-        return this.globals.unitsList.filter((u: IUnitItem) => u.id === Number($(row).find('.unit_id').text()))[0];
-    }
-
-    private getSelectedStrategy = (row: HTMLTableRowElement): IPriceStrategy => {
+    private getSelectedStrategy = (row: HTMLTableRowElement): IRetailPriceStrategy => {
         const priceStrategyValue = $(row).find('select.price-select').val();
         return this.priceStrategies.filter(c => c.label === priceStrategyValue)[0];
     }
@@ -44,7 +40,7 @@ export class RetailPricesComponent extends ManagementSubComponent {
         return `
             <select class="price-select nns-select full-w mb-3">
                 ${
-                    this.priceStrategies.map((item: IPriceStrategy) => {
+                    this.priceStrategies.map((item: IRetailPriceStrategy) => {
                         return `<option title="${item.description}">${item.label}</option>`;
                     }).join('')
                 }
@@ -96,6 +92,7 @@ export class RetailPricesComponent extends ManagementSubComponent {
     private loadSettings = (): void => {
         const settings = <IPricesProductSettings[]>this.getSettings();
         if (!settings) {
+            this.storageSettings = [];
             return;
         }
 
