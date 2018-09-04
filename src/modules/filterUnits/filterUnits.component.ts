@@ -3,7 +3,7 @@ import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
 import { Globals } from '../../shared/globals/globals.singletone';
-import { Storage } from '../../utils/storage';
+import { LS } from '../../utils/storage';
 import { IFilterUnitsModel } from './models/filterUnit.model';
 
 export class FilterUnits extends Runnable {
@@ -67,14 +67,14 @@ export class FilterUnits extends Runnable {
     }
 
     private saveAndFilterUnits(): void {
-        Storage.set(this.storageKey, this.data, new Date());
+        LS.set(this.storageKey, this.data);
         this.filterUnits();
     }
 
     private restoreFilterUnits(): void {
-        const restored = Storage.get(this.storageKey);
+        const restored = LS.get(this.storageKey);
         if (restored) {
-            this.data = restored.body.data;
+            this.data = restored.data;
 
             $('#filter-units-by-id').val(this.data.filters.filterById);
             $('#filter-units-by-city').val(this.data.filters.filterByCity);

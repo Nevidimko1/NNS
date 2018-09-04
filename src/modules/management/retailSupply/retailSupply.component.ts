@@ -8,6 +8,7 @@ import { RetailMinSupplyStrategies } from './strategies/min/retailSupplyStrategi
 import { Status } from '../../../shared/status/status.singletone';
 import { IRetailSupplyUnitSettings } from './models/retailSupply.settings.model';
 import { numberify } from '../../../utils';
+import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
 
 export class RetailSupplyComponent extends ManagementSubComponent {
     protected supplyStrategies: IRetailSupplyStrategy[] = RetailSupplyStrategies;
@@ -21,11 +22,17 @@ export class RetailSupplyComponent extends ManagementSubComponent {
         super('RetailSupply');
 
         this.service = new RetailSupplyService();
+        this.status = Status.getInstance();
     }
 
-    private getSelectedStrategy = (row: HTMLTableRowElement): IRetailSupplyStrategy => {
-        const supplyStrategyValue = $(row).find('select.ыгзздн-select').val();
-        return this.supplyStrategies.filter(c => c.label === supplyStrategyValue)[0];
+    private getSelectedSupplyStrategy = (row: HTMLTableRowElement): IRetailSupplyStrategy => {
+        const strategy = $(row).find('select.supply-select').val();
+        return this.supplyStrategies.filter(c => c.label === strategy)[0];
+    }
+
+    private getSelectedMinSupplyStrategy = (row: HTMLTableRowElement): IRetailMinSupplyStrategy => {
+        const strategy = $(row).find('select.min-supply-select').val();
+        return this.minSupplies.filter(c => c.label === strategy)[0];
     }
 
     private createSupplyStrategyDropdown = (row: HTMLTableRowElement): string => {
@@ -52,6 +59,38 @@ export class RetailSupplyComponent extends ManagementSubComponent {
                 }
             </select>
         `;
+    }
+
+    private updateSupplies = (): void => {
+        const filteredRows = $('table.unit-list-2014 tbody tr')
+            .toArray()
+            .filter((row: HTMLTableRowElement) => !$(row).hasClass('nns-hidden'))
+            .filter((row: HTMLTableRowElement) => {
+                const info = this.getUnitItemByRow(row);
+                return info && info.unit_class_kind === 'shop';
+            })
+            .filter((row: HTMLTableRowElement) => {
+                const strategy = this.getSelectedSupplyStrategy(row);
+                return strategy && !strategy.skip;
+            });
+
+        if (!filteredRows.length) {
+            this.status.log('No units to update supply', LOG_STATUS.SUCCESS);
+            return;
+        }
+
+        this.status.start(filteredRows.length);
+        this.status.log('Updating supplies...', LOG_STATUS.SUCCESS);
+
+        filteredRows
+            .forEach((row: HTMLTableRowElement) => {
+                const info = this.getUnitItemByRow(row),
+                    supplyStrategy = this.getSelectedSupplyStrategy(row),
+                    minSupply = this.getSelectedMinSupplyStrategy(row);
+
+                this.service.updateUnitSupplies(info, supplyStrategy, minSupply)
+                    .then(() => this.status.progressTick());
+            });
     }
 
     private updateSettings = (): void => this.saveSettings(this.storageSettings);
@@ -81,9 +120,11 @@ export class RetailSupplyComponent extends ManagementSubComponent {
         $('table.unit-list-2014 thead tr').toArray().forEach(row => {
             $(row).append(`<th class="supply center"></th>`);
         });
+
         $('table.unit-list-2014 thead tr:eq(1) th.supply').append(`
-            <button id="supply-set-all" class="nns-button">Supply</button>
+            <button id="supplies-set-all" class="nns-button">Supply</button>
         `);
+        $('#supplies-set-all').on('click', this.updateSupplies);
 
         $('table.unit-list-2014 tbody tr')
             .toArray()

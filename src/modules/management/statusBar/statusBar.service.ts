@@ -1,15 +1,8 @@
 import { DateUtils } from '../../../utils/date';
 import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
-import { Status } from '../../../shared/status/status.singletone';
 import { IStatusLog } from '../../../shared/status/models/statusLog.model';
 
 export class StatusBarService {
-    private status: Status;
-
-    constructor() {
-        this.status = Status.getInstance();
-    }
-
     public addLog = (logItem: IStatusLog): void => {
         if (!logItem) {
             return;
@@ -34,8 +27,6 @@ export class StatusBarService {
         if (scroll) {
             el.scrollTo(0, el.scrollHeight);
         }
-
-        this.status.progressTick();
     }
 
 }

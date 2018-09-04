@@ -55,7 +55,7 @@ export class RetailPricesComponent extends ManagementSubComponent {
         `;
     }
 
-    private calculatePrices = (): void => {
+    private updatePrices = (): void => {
         const filteredRows = $('table.unit-list-2014 tbody tr')
             .toArray()
             .filter((row: HTMLTableRowElement) => !$(row).hasClass('nns-hidden'))
@@ -117,7 +117,7 @@ export class RetailPricesComponent extends ManagementSubComponent {
         $('table.unit-list-2014 thead tr:eq(1) th.prices').append(`
             <button id="prices-set-all" class="nns-button">Prices</button>
         `);
-        $('#prices-set-all').on('click', this.calculatePrices);
+        $('#prices-set-all').on('click', this.updatePrices);
 
         $('table.unit-list-2014 tbody tr')
             .toArray()

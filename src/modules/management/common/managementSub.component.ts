@@ -1,5 +1,5 @@
 import { Globals } from '../../../shared/globals/globals.singletone';
-import { Storage } from '../../../utils/storage';
+import { LS } from '../../../utils/storage';
 import { IUnitItem } from '../../../shared/globals/models/unitInfo.model';
 
 export class ManagementSubComponent {
@@ -18,12 +18,12 @@ export class ManagementSubComponent {
     }
 
     public saveSettings = (settings: any): void => {
-        Storage.set(this.storageKey, settings, new Date());
+        LS.set(this.storageKey, settings);
     }
 
     public getSettings = <T>(): T => {
-        const restored = Storage.get(this.storageKey),
-            settings: T = restored ? restored.body.data : null;
+        const restored = LS.get(this.storageKey),
+            settings: T = restored ? restored.data : null;
 
         return settings;
     }
