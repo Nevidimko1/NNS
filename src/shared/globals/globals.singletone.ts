@@ -20,6 +20,7 @@ export class Globals implements IGlobals {
 
     protected url: string;
 
+    public token: string;
     public info: IRealmInfo;
     public pageInfo: IPageInfo;
     public companyInfo: ICompanyInfo;
@@ -58,6 +59,11 @@ export class Globals implements IGlobals {
         return pageInfo;
     }
 
+    private fetchToken = (): Promise<any> => {
+        return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/token`)
+            .then((token: string) => this.token = token);
+    }
+
     private fetchUnitTypesList = (): Promise<any> => {
         return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/unittype/browse`)
             .then((response: IUnitTypesResponse) => {
@@ -93,6 +99,7 @@ export class Globals implements IGlobals {
         })
             .then(() => {
                 return Promise.all([
+                    this.fetchToken(),
                     this.fetchUnitsList(),
                     this.fetchUnitTypesList()
                 ]);

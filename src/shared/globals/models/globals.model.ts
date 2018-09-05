@@ -5,6 +5,7 @@ import { IUnitItem } from './unitInfo.model';
 import { IUnitType } from './unitType.model';
 
 export interface IGlobals {
+    token: string;
     info: IRealmInfo;
     pageInfo: IPageInfo;
     companyInfo: ICompanyInfo;

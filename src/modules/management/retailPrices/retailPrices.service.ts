@@ -34,8 +34,6 @@ export class RetailPricesService {
 
         return this.retailService.getUnitInfo(unitInfo)
             .then((shopInfo: IShop) => {
-                console.log(`Setting prices for ${unitInfo.name}`);
-
                 const newPrices = shopInfo.products
                     .map((p: IShopProduct) => Math.max(priceStrategy.calculate(p), Math.round(p.purch * minPriceMultiplier)));
                 let data = 'action=setprice',
@@ -67,7 +65,7 @@ export class RetailPricesService {
                             return Promise.resolve();
                         });
                 } else {
-                    status.log(`No price changes needed for ${unitLink}`);
+                    status.log(`No price changes done for ${unitLink}`);
                     return Promise.resolve();
                 }
             });

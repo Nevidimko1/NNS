@@ -4,6 +4,7 @@ import { Api } from '../../utils/api';
 import { numberify } from '../../utils';
 import { IUnitItem, IUnitItemProduct } from '../globals/models/unitInfo.model';
 import { LS } from '../../utils/storage';
+import { LOG_STATUS } from '../enums/logStatus.enum';
 
 export class RetailService extends DataService {
 
@@ -131,34 +132,40 @@ export class RetailService extends DataService {
     }
 
     private updatePrices = (shopInfo: IShop): Promise<IShop> => {
-        return Api.get(`https://virtonomica.ru/${this.globals.info.realm}/main/unit/view/${shopInfo.id}/trading_hall`)
+        const shopTradingHallUrl = `https://virtonomica.ru/${this.globals.info.realm}/main/unit/view/${shopInfo.id}/trading_hall`;
+        return Api.get(shopTradingHallUrl)
             .then((html: string) => {
                 const $html = $(html);
                 const prices = $html.find(':text').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[];
 
                 if (shopInfo.products.length !== prices.length) {
-                    return Promise.reject(`Failed to update prices (${shopInfo.id}). Products doesn't match prices.`);
+                    const err = `Failed to update prices for
+                        <a target="_blank" href="${shopTradingHallUrl}">${shopInfo.name} (${shopInfo.id})</a>.
+                        Products doesn't match prices.`;
+                    this.status.log(err, LOG_STATUS.ERROR);
+                    return shopInfo;
                 }
 
                 shopInfo.products.forEach((product: IShopProduct, i: number) => product.price = prices[i]);
-                return Promise.resolve(shopInfo);
+                return shopInfo;
             });
     }
 
     private updateSupplies = (shopInfo: IShop): Promise<IShop> => {
-        return Api.get(`https://virtonomica.ru/${this.globals.info.realm}/main/unit/view/${shopInfo.id}/supply`)
+        const shopSupplyUrl = `https://virtonomica.ru/${this.globals.info.realm}/main/unit/view/${shopInfo.id}/supply`;
+        return Api.get(shopSupplyUrl)
             .then((html: string) => {
                 const $html = $(html),
                 parcels = $html.find('input:text[name^="supplyContractData[party_quantity]"]').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
-                price_mark_ups = $html.find('select[name^="supplyContractData[price_mark_up]"]').toArray()
+                priceMarkUps = $html.find('select[name^="supplyContractData[price_mark_up]"]').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
-                price_constraint_maxes = $html.find('input[name^="supplyContractData[price_constraint_max]"]').toArray()
+                priceConstraintMaxes = $html.find('input[name^="supplyContractData[price_constraint_max]"]').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
-                price_constraint_types = $html.find('select[name^="supplyContractData[constraintPriceType]"]').toArray()
+                priceConstraintTypes = $html.find('select[name^="supplyContractData[constraintPriceType]"]').toArray()
                     .map((e: HTMLElement) => $(e).val()) as string[],
-                quality_constraint_mins = $html.find('input[name^="supplyContractData[quality_constraint_min]"]').toArray()
+                qualityConstraintMins = $html.find('input[name^="supplyContractData[quality_constraint_min]"]').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
                 purchases = $html.find('td.nowrap:nth-child(4)').toArray()
                     .map((e: HTMLElement) => numberify($(e).text())) as number[],
@@ -180,15 +187,22 @@ export class RetailService extends DataService {
                     .map((e: HTMLElement) => $(e).attr('src')) as string[],
                 supplySymbols = imgs.map((url: string) => url.replace('/img/products/', '').split('.')[0]);
 
+                if (shopInfo.products.length !== supplySymbols.length) {
+                    const err = `<a target="_blank" href="${shopSupplyUrl}">${shopInfo.name} (${shopInfo.id})</a>
+                         is missing a supplier, or has too many suppliers!`;
+                    this.status.log(err, LOG_STATUS.ERROR);
+                    return shopInfo;
+                }
+
                 shopInfo.products.forEach((product: IShopProduct) => {
                     const i = supplySymbols.indexOf(product.symbol);
 
                     product.supply = (i > -1) ? {
                         parcel: parcels[i],
-                        price_mark_up: price_mark_ups[i],
-                        price_constraint_max: price_constraint_maxes[i],
-                        price_constraint_type: price_constraint_types[i],
-                        quality_constraint_min: quality_constraint_mins[i],
+                        priceMarkUp: priceMarkUps[i],
+                        priceConstraintMax: priceConstraintMaxes[i],
+                        priceConstraintType: priceConstraintTypes[i],
+                        qualityConstraintMin: qualityConstraintMins[i],
                         purchase: purchases[i],
                         quantity: quantities[i],
                         sold: solds[i],
@@ -210,7 +224,7 @@ export class RetailService extends DataService {
             .then(this.updateSupplies);
     }
 
-    public getUnitInfo = (unit: IUnitItem): Promise<IShop> => {
+    private retrieveUnitInfo = (unit: IUnitItem): Promise<IShop> => {
         const storageItem = LS.get(this.storageKey(unit.id));
         if (storageItem && storageItem.data && storageItem.today) {
             // restore only today saved shopInfo
@@ -218,5 +232,10 @@ export class RetailService extends DataService {
         } else {
             return this.fetchShopInfo(unit);
         }
+    }
+
+    public getUnitInfo = (unit: IUnitItem): Promise<IShop> => {
+        return Api.refreshCache(unit.id)
+            .then(() => this.retrieveUnitInfo(unit));
     }
 }

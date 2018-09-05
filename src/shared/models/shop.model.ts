@@ -47,10 +47,10 @@ export interface IShopProduct extends IUnitItemProduct {
 
 export interface IShopProductSupply {
     parcel: number;
-    price_mark_up: number;
-    price_constraint_max: number;
-    price_constraint_type: string;
-    quality_constraint_min: number;
+    priceMarkUp: number;
+    priceConstraintMax: number;
+    priceConstraintType: string;
+    qualityConstraintMin: number;
     purchase: number;
     quantity: number;
     sold: number;
