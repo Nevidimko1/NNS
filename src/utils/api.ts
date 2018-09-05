@@ -9,7 +9,7 @@ export class Api {
                 status.restCalls++;
                 resolve(content);
             })
-            .fail(e => reject(e));
+            .fail(reject);
         });
     }
 
@@ -20,7 +20,7 @@ export class Api {
                 status.restCalls++;
                 resolve(content);
             })
-            .fail(e => reject(e));
+            .fail(reject);
         });
     }
 }

@@ -37,11 +37,28 @@ export interface IShopProduct extends IUnitItemProduct {
     share: number;
     history: IShopProductHistory[];
     report: IShopProductReport;
+    supply: IShopProductSupply;
     imageSrc: string;
     /**
      * field name for POST call
      */
     updateFieldName: string;
+}
+
+export interface IShopProductSupply {
+    parcel: number;
+    price_mark_up: number;
+    price_constraint_max: number;
+    price_constraint_type: string;
+    quality_constraint_min: number;
+    purchase: number;
+    quantity: number;
+    sold: number;
+    offer: number;
+    price: number;
+    reprice: boolean;
+    quality: number;
+    available: number;
 }
 
 export interface IShop extends IBase {

@@ -111,6 +111,7 @@ export class RetailService extends DataService {
                         imageSrc: imgSrcs[i],
                         history: [],
                         report: null,
+                        supply: null,
                         updateFieldName: updateFieldNames[i]
                     }));
 
@@ -129,8 +130,7 @@ export class RetailService extends DataService {
             });
     }
 
-    private restoreShopInfo = (shopInfo: IShop): Promise<IShop> => {
-        // get latest prices for restored shopInfo
+    private updatePrices = (shopInfo: IShop): Promise<IShop> => {
         return Api.get(`https://virtonomica.ru/${this.globals.info.realm}/main/unit/view/${shopInfo.id}/trading_hall`)
             .then((html: string) => {
                 const $html = $(html);
@@ -144,6 +144,70 @@ export class RetailService extends DataService {
                 shopInfo.products.forEach((product: IShopProduct, i: number) => product.price = prices[i]);
                 return Promise.resolve(shopInfo);
             });
+    }
+
+    private updateSupplies = (shopInfo: IShop): Promise<IShop> => {
+        return Api.get(`https://virtonomica.ru/${this.globals.info.realm}/main/unit/view/${shopInfo.id}/supply`)
+            .then((html: string) => {
+                const $html = $(html),
+                parcels = $html.find('input:text[name^="supplyContractData[party_quantity]"]').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
+                price_mark_ups = $html.find('select[name^="supplyContractData[price_mark_up]"]').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
+                price_constraint_maxes = $html.find('input[name^="supplyContractData[price_constraint_max]"]').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
+                price_constraint_types = $html.find('select[name^="supplyContractData[constraintPriceType]"]').toArray()
+                    .map((e: HTMLElement) => $(e).val()) as string[],
+                quality_constraint_mins = $html.find('input[name^="supplyContractData[quality_constraint_min]"]').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
+                purchases = $html.find('td.nowrap:nth-child(4)').toArray()
+                    .map((e: HTMLElement) => numberify($(e).text())) as number[],
+                quantities = $html.find('td:nth-child(2) table:nth-child(1) tr:nth-child(1) td:nth-child(2)').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
+                solds = $html.find('td:nth-child(2) table:nth-child(1) tr:nth-child(5) td:nth-child(2)').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
+                offers = $html.find('.destroy').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
+                prices = $html.find('td:nth-child(9) table:nth-child(1) tr:nth-child(1) td:nth-child(2)').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
+                reprices = $html.find('td:nth-child(9) table:nth-child(1) tr:nth-child(1) td:nth-child(2)').toArray()
+                    .map((e: HTMLElement) => !!$(e).find('div').length) as boolean[],
+                qualities = $html.find('td:nth-child(9) table:nth-child(1) tr:nth-child(2) td:nth-child(2)').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
+                availables = $html.find('td:nth-child(10) table:nth-child(1) tr:nth-child(3) td:nth-child(2)').toArray()
+                    .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
+                imgs = $html.find('.noborder td > img').toArray()
+                    .map((e: HTMLElement) => $(e).attr('src')) as string[],
+                supplySymbols = imgs.map((url: string) => url.replace('/img/products/', '').split('.')[0]);
+
+                shopInfo.products.forEach((product: IShopProduct) => {
+                    const i = supplySymbols.indexOf(product.symbol);
+
+                    product.supply = (i > -1) ? {
+                        parcel: parcels[i],
+                        price_mark_up: price_mark_ups[i],
+                        price_constraint_max: price_constraint_maxes[i],
+                        price_constraint_type: price_constraint_types[i],
+                        quality_constraint_min: quality_constraint_mins[i],
+                        purchase: purchases[i],
+                        quantity: quantities[i],
+                        sold: solds[i],
+                        offer: offers[i],
+                        price: prices[i],
+                        reprice: reprices[i],
+                        quality: qualities[i],
+                        available: availables[i]
+                    } : null;
+                });
+
+                return shopInfo;
+            });
+    }
+
+    private restoreShopInfo = (shopInfo: IShop): Promise<IShop> => {
+        // Before providing shopInfo we need to make sure prices and supplies are latest in case user did some changes manually
+        return this.updatePrices(shopInfo)
+            .then(this.updateSupplies);
     }
 
     public getUnitInfo = (unit: IUnitItem): Promise<IShop> => {
