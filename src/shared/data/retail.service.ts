@@ -47,11 +47,13 @@ export class RetailService extends DataService {
                     return;
                 }
 
+                const cityShare = $(html).find('table.grid:eq(0) tr:eq(0) td:eq(4)').text().replace(' ед.', '');
                 const rows = $(infoTable).find('tbody tr');
                 return {
                     localPrice: numberify($(rows[1]).find('td:eq(0)').text()),
                     localQuality: numberify($(rows[2]).find('td:eq(0)').text()),
                     localBrand: numberify($(rows[3]).find('td:eq(0)').text()),
+                    cityShare: numberify(cityShare)
                 };
             });
     }
@@ -76,7 +78,7 @@ export class RetailService extends DataService {
                 $html = $(html);
 
                 const stocks = $html.find('.nowrap:nth-child(6)').toArray()
-                    .map((e: HTMLElement) => numberify($(e).text())) as number[],
+                        .map((e: HTMLElement) => numberify($(e).text())) as number[],
                     delivered = $html.find('.nowrap:nth-child(5)').toArray()
                         .map((e: HTMLElement) => numberify($(e).text().split('[')[1])) as number[],
                     qualities = $html.find('td:nth-child(7)').toArray()

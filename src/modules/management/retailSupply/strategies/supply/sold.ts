@@ -11,11 +11,19 @@ export class SoldRetailSupplyStrategy implements IRetailSupplyStrategy {
     }
 
     public calculate = (product: IShopProduct): number => {
+
+        // order 5% of cityShare for very first product supply
+        if (product.stock === 0 && product.supply.sold === 0) {
+            return Math.floor(product.report.cityShare * 0.05);
+        }
+
+        // on second day after first delivery keep the quantity
+        if (product.supply.sold === 0 && product.stock === product.deliver) {
+            return product.supply.parcel;
+        }
+
         // sold * 3, because we expect to sell at least same amount on day change
         // and tomorrow we'll have sold * 2
-        const sold2x = product.supply.sold * 3,
-            maxStockDiff = sold2x - product.stock;
-
-        return Math.max(0, maxStockDiff);
+        return Math.max(0, product.supply.sold * 3 - product.stock);
     }
 }

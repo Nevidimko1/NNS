@@ -12,6 +12,7 @@ export interface IShopProductReport {
     localPrice: number;
     localQuality: number;
     localBrand: number;
+    cityShare: number;
 }
 
 export interface IShopProduct extends IUnitItemProduct {
@@ -46,13 +47,25 @@ export interface IShopProduct extends IUnitItemProduct {
 }
 
 export interface IShopProductSupply {
+    /**
+     * Items to order for tomorrow
+     */
     parcel: number;
     priceMarkUp: number;
     priceConstraintMax: number;
     priceConstraintType: string;
     qualityConstraintMin: number;
+    /**
+     * Delivered today
+     */
     purchase: number;
+    /**
+     * Currently in stock
+     */
     quantity: number;
+    /**
+     * Sold today
+     */
     sold: number;
     offer: number;
     price: number;
