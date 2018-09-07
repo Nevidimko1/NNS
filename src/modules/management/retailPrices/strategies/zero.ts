@@ -1,6 +1,6 @@
-import { IPriceStrategy } from '../models/priceStrategy.model';
+import { IRetailPriceStrategy } from '../models/priceStrategy.model';
 
-export class ZeroPriceStrategy implements IPriceStrategy {
+export class ZeroPriceStrategy implements IRetailPriceStrategy {
     public label: string;
     public description: string;
 

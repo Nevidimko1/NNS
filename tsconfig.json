@@ -1,18 +1,19 @@
 {
-    "compileOnSave": true,
+    "compileOnSave": false,
     "compilerOptions": {
-        "baseUrl": "",
-        "declaration": false,
-        "noUnusedLocals": true,
-        "sourceMap": true,
-        "noUnusedParameters": true,
-        "lib": [ "es6", "dom" ],
-        "moduleResolution": "node",
         "module": "commonjs",
+        "target": "es5",
+        "moduleResolution": "node",
+        "lib": [ "es6", "dom", "scripthost" ],
+        "sourceMap": true,
         "typeRoots": [
             "../node_modules/@types"
         ],
-        "outDir": "./dist",
-        "target": "es5"
-    }
+        "types" : [
+            "jasmine"
+        ]
+    },
+    "exclude": [
+        "node_modules"
+    ]
 }

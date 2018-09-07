@@ -37,7 +37,7 @@ export class LS {
         }
 
         const parsed = JSON.parse(raw) as IStorageItem;
-        parsed.date = parsed.date ? new Date(parsed.date) : null;
+        parsed.date = parsed.date ? new Date(parsed.date as any as string) : null;
         return new StorageItem(parsed);
     }
 

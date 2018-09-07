@@ -5,6 +5,7 @@ const path = require('path');
 module.exports = {
     entry: './src/index.ts',
     output: {
+        publicPath: '',
         path: path.join(__dirname, '..', '/dist'),
         filename: 'nns.user.js'
     },
@@ -34,6 +35,9 @@ module.exports = {
                 ]
             }
         ]
+    },
+    node: {
+        path: 'empty'
     },
     plugins: [
         new webpack.ProvidePlugin({

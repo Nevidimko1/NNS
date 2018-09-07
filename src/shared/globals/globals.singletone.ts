@@ -39,6 +39,10 @@ export class Globals implements IGlobals {
             unitPage: null,
         };
 
+        if (!this.url) {
+            return;
+        }
+
         const unitList = this.url.match(/view\/(\d+)(\/unit_list\/$|unit_list$)?/);
         if (unitList.length === 3 && Number(unitList[1]) === this.companyInfo.id) {
             pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
@@ -83,9 +87,10 @@ export class Globals implements IGlobals {
             try {
                 this.url = window.location.href;
 
+                const datetime = $('.date_time').html();
                 this.info = {
                     realm: getCookie('last_realm'),
-                    date: $('.date_time').html().split('.')[0].trim()
+                    date: datetime ? datetime.split('.')[0].trim() : null
                 };
 
                 this.companyInfo = {
