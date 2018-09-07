@@ -171,7 +171,7 @@ export class RetailService extends DataService {
                     .map((e: HTMLElement) => numberify(($(e) as any).val())) as number[],
                 purchases = $html.find('td.nowrap:nth-child(4)').toArray()
                     .map((e: HTMLElement) => numberify($(e).text())) as number[],
-                quantities = $html.find('td:nth-child(2) table:nth-child(1) tr:nth-child(1) td:nth-child(2)').toArray()
+                stock = $html.find('td:nth-child(2) table:nth-child(1) tr:nth-child(1) td:nth-child(2)').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
                 solds = $html.find('td:nth-child(2) table:nth-child(1) tr:nth-child(5) td:nth-child(2)').toArray()
                     .map((e: HTMLElement) => numberify(($(e) as any).text())) as number[],
@@ -206,7 +206,7 @@ export class RetailService extends DataService {
                         priceConstraintType: priceConstraintTypes[i],
                         qualityConstraintMin: qualityConstraintMins[i],
                         purchase: purchases[i],
-                        quantity: quantities[i],
+                        stock: stock[i],
                         sold: solds[i],
                         offer: offers[i],
                         price: prices[i],

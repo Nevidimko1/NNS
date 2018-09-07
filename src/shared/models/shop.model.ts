@@ -59,10 +59,7 @@ export interface IShopProductSupply {
      * Delivered today
      */
     purchase: number;
-    /**
-     * Currently in stock
-     */
-    quantity: number;
+    stock: number;
     /**
      * Sold today
      */
