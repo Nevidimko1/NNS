@@ -89,7 +89,8 @@ export class RetailSupplyComponent extends ManagementSubComponent {
                     minSupply = this.getSelectedMinSupplyStrategy(row);
 
                 this.service.updateUnitSupplies(info, supplyStrategy, minSupply)
-                    .then(() => this.status.progressTick());
+                    .then(this.status.progressTick)
+                    .catch(this.status.progressTick);
             });
     }
 

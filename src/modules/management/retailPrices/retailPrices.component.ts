@@ -83,10 +83,8 @@ export class RetailPricesComponent extends ManagementSubComponent {
                     minPriceMultiplier = Number($(row).find('select.min-price-select').val());
 
                 this.service.updateUnitPrices(info, priceStrategy, minPriceMultiplier)
-                    .then(() => {
-                        console.log(info);
-                        this.status.progressTick();
-                    });
+                    .then(this.status.progressTick)
+                    .catch(this.status.progressTick);
             });
     }
 

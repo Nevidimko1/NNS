@@ -14,7 +14,7 @@ export class SoldRetailSupplyStrategy implements IRetailSupplyStrategy {
 
         // order 5% of cityShare for very first product supply
         if (product.supply.sold === 0 &&
-            product.supply.parcel === 0 &&
+            product.supply.purchase === 0 &&
             product.supply.stock === 0) {
             return Math.floor(product.report.cityShare * 0.05);
         }

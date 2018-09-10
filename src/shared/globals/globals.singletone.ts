@@ -44,7 +44,7 @@ export class Globals implements IGlobals {
         }
 
         const unitList = this.url.match(/view\/(\d+)(\/unit_list\/$|unit_list$)?/);
-        if (unitList.length === 3 && Number(unitList[1]) === this.companyInfo.id) {
+        if (unitList && unitList.length === 3 && Number(unitList[1]) === this.companyInfo.id) {
             pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
         } else if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
             pageInfo.pageType = PAGE_TYPES.UNIT_PAGE;
@@ -76,11 +76,8 @@ export class Globals implements IGlobals {
     }
 
     private fetchUnitsList = (): Promise<any> => {
-        const uid = new Date().getTime();
-        return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=${uid}`)
-            .then((response: IUnitsResponse) => {
-                this.unitsList = this.service.parseUnitsResponse(response);
-            });
+        return this.getUnitList()
+            .then((unitsList: IUnitItem[]) => this.unitsList = unitsList);
     }
 
     public init = (): Promise<any> => {
@@ -110,6 +107,16 @@ export class Globals implements IGlobals {
                     this.fetchUnitTypesList()
                 ]);
             });
+    }
+
+    public getUnitList = (params?: string): Promise<IUnitItem[]> => {
+        const uid = new Date().getTime();
+        let url = `https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=${uid}`;
+        if (params) {
+            url += `&${params}`;
+        }
+        return Api.get(url)
+            .then((response: IUnitsResponse) => this.service.parseUnitsResponse(response));
     }
 
     static getInstance(): Globals {

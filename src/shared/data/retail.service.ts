@@ -2,8 +2,8 @@ import { DataService } from './common/data.service';
 import { IShop, IShopProduct, IShopProductReport } from '../models/shop.model';
 import { Api } from '../../utils/api';
 import { numberify } from '../../utils';
-import { IUnitItem, IUnitItemProduct } from '../globals/models/unitInfo.model';
-import { LS } from '../../utils/storage';
+import { IUnitItem, IUnitItemProduct, IUnitsResponse } from '../globals/models/unitInfo.model';
+import { LS, StorageItem } from '../../utils/storage';
 import { LOG_STATUS } from '../enums/logStatus.enum';
 
 export class RetailService extends DataService {
@@ -126,6 +126,7 @@ export class RetailService extends DataService {
             })
             .then((shopInfo: IShop) => this.populateReports($html, shopInfo))
             .then((shopInfo: IShop) => this.populateProductsHistories(shopInfo))
+            .then((shopInfo: IShop) => this.updateSupplies(shopInfo))
             .then((shopInfo: IShop) => {
                 // save shopInfo in localStorage
                 LS.set(this.storageKey(shopInfo.id), shopInfo);
@@ -146,11 +147,11 @@ export class RetailService extends DataService {
                         <a target="_blank" href="${shopTradingHallUrl}">${shopInfo.name} (${shopInfo.id})</a>.
                         Products doesn't match prices.`;
                     this.status.log(err, LOG_STATUS.ERROR);
-                    return shopInfo;
+                    return Promise.reject(true);
                 }
 
                 shopInfo.products.forEach((product: IShopProduct, i: number) => product.price = prices[i]);
-                return shopInfo;
+                return Promise.resolve(shopInfo);
             });
     }
 
@@ -193,7 +194,7 @@ export class RetailService extends DataService {
                     const err = `<a target="_blank" href="${shopSupplyUrl}">${shopInfo.name} (${shopInfo.id})</a>
                          is missing a supplier, or has too many suppliers!`;
                     this.status.log(err, LOG_STATUS.ERROR);
-                    return shopInfo;
+                    return Promise.reject(true);
                 }
 
                 shopInfo.products.forEach((product: IShopProduct) => {
@@ -216,7 +217,7 @@ export class RetailService extends DataService {
                     } : null;
                 });
 
-                return shopInfo;
+                return Promise.resolve(shopInfo);
             });
     }
 
@@ -226,14 +227,40 @@ export class RetailService extends DataService {
             .then(this.updateSupplies);
     }
 
+    private shopInfoIsUpToDate = (storageItem: StorageItem): Promise<any> => {
+        if (!storageItem || !storageItem.data || !storageItem.today) {
+            return Promise.reject();
+        }
+
+        return this.globals.getUnitList('unit_type_id=1886')
+            .then((unitList: IUnitItem[]) => {
+                const shopInfo = (storageItem.data as IShop);
+                const unit = unitList.filter(item => item.id === shopInfo.id)[0];
+                if (!unit) {
+                    return Promise.reject();
+                }
+
+                const p1 = unit.products.map((p: IUnitItemProduct) => p.id).sort();
+                const p2 = shopInfo.products.map((p: IShopProduct) => p.id).sort();
+                if (p1.length !== p2.length || p1.filter((p, i) => p !== p2[i]).length) {
+                    return Promise.reject();
+                }
+                console.log('Shop Info up to date');
+                return Promise.resolve();
+            });
+    }
+
     private retrieveUnitInfo = (unit: IUnitItem): Promise<IShop> => {
         const storageItem = LS.get(this.storageKey(unit.id));
-        if (storageItem && storageItem.data && storageItem.today) {
-            // restore only today saved shopInfo
-            return this.restoreShopInfo(storageItem.data as IShop);
-        } else {
-            return this.fetchShopInfo(unit);
-        }
+        return this.shopInfoIsUpToDate(storageItem)
+            .then(() => this.restoreShopInfo(storageItem.data as IShop))
+            .catch((stop: boolean) => {
+                if (!stop) {
+                    return this.fetchShopInfo(unit);
+                } else {
+                    return Promise.reject(stop);
+                }
+            });
     }
 
     public getUnitInfo = (unit: IUnitItem): Promise<IShop> => {

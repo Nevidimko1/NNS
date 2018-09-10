@@ -1,13 +1,14 @@
 import { Status } from '../shared/status/status.singletone';
-import { Globals } from '../shared/globals/globals.singletone';
+// import { Globals } from '../shared/globals/globals.singletone';
 
 export class Api {
     public static refreshCache = (unitId: number): Promise<any> => {
-        const globals = Globals.getInstance();
-        return Api.post(`https://virtonomica.ru/api/${globals.info.realm}/main/unit/refresh`, {
-            id: unitId,
-            token: globals.token
-        });
+        // const globals = Globals.getInstance();
+        // return Api.post(`https://virtonomica.ru/api/${globals.info.realm}/main/unit/refresh`, {
+        //     id: unitId,
+        //     token: globals.token
+        // });
+        return Promise.resolve();
     }
 
     public static get = (url: string): Promise<any> => {
