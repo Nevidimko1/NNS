@@ -76,7 +76,8 @@ export class Globals implements IGlobals {
     }
 
     private fetchUnitsList = (): Promise<any> => {
-        return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=4000`)
+        const uid = new Date().getTime();
+        return Api.get(`https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=${uid}`)
             .then((response: IUnitsResponse) => {
                 this.unitsList = this.service.parseUnitsResponse(response);
             });
