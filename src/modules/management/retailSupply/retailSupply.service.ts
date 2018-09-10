@@ -38,8 +38,6 @@ export class RetailSupplyService {
     ): Promise<any> => {
         return this.retailService.getUnitInfo(unitInfo)
             .then((shopInfo: IShop) => {
-                console.log(shopInfo);
-
                 let supplyChangeLog = '<table style="margin-left: 15px;"><tbody>';
                 const productsWithSupply = shopInfo.products.filter((p: IShopProduct) => !!p.supply);
                 const newSupplies = productsWithSupply

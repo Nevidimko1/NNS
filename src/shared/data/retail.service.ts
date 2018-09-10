@@ -147,7 +147,7 @@ export class RetailService extends DataService {
                         <a target="_blank" href="${shopTradingHallUrl}">${shopInfo.name} (${shopInfo.id})</a>.
                         Products doesn't match prices.`;
                     this.status.log(err, LOG_STATUS.ERROR);
-                    return Promise.reject(true);
+                    return Promise.reject();
                 }
 
                 shopInfo.products.forEach((product: IShopProduct, i: number) => product.price = prices[i]);
@@ -194,7 +194,7 @@ export class RetailService extends DataService {
                     const err = `<a target="_blank" href="${shopSupplyUrl}">${shopInfo.name} (${shopInfo.id})</a>
                          is missing a supplier, or has too many suppliers!`;
                     this.status.log(err, LOG_STATUS.ERROR);
-                    return Promise.reject(true);
+                    return Promise.reject();
                 }
 
                 shopInfo.products.forEach((product: IShopProduct) => {
@@ -227,7 +227,7 @@ export class RetailService extends DataService {
             .then(this.updateSupplies);
     }
 
-    private shopInfoIsUpToDate = (storageItem: StorageItem): Promise<any> => {
+    private shopInfoIsUpToDate = (storageItem: StorageItem): Promise<IUnitItem | void> => {
         if (!storageItem || !storageItem.data || !storageItem.today) {
             return Promise.reject();
         }
@@ -243,9 +243,8 @@ export class RetailService extends DataService {
                 const p1 = unit.products.map((p: IUnitItemProduct) => p.id).sort();
                 const p2 = shopInfo.products.map((p: IShopProduct) => p.id).sort();
                 if (p1.length !== p2.length || p1.filter((p, i) => p !== p2[i]).length) {
-                    return Promise.reject();
+                    return Promise.reject(unit);
                 }
-                console.log('Shop Info up to date');
                 return Promise.resolve();
             });
     }
@@ -254,11 +253,11 @@ export class RetailService extends DataService {
         const storageItem = LS.get(this.storageKey(unit.id));
         return this.shopInfoIsUpToDate(storageItem)
             .then(() => this.restoreShopInfo(storageItem.data as IShop))
-            .catch((stop: boolean) => {
-                if (!stop) {
-                    return this.fetchShopInfo(unit);
+            .catch((updatedUnit: IUnitItem) => {
+                if (updatedUnit) {
+                    return this.fetchShopInfo(updatedUnit);
                 } else {
-                    return Promise.reject(stop);
+                    return Promise.reject();
                 }
             });
     }
