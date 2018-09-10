@@ -14,10 +14,10 @@ describe('Retail Supply strategy - Sold', () => {
                 cityShare: 1000
             },
             supply: {
-                stock: 0,
+                sold: 0,
                 parcel: 0,
                 purchase: 0,
-                sold: 0
+                stock: 0,
             }
         } as any as IShopProduct;
         quantity = sold.calculate(product);
@@ -40,11 +40,13 @@ describe('Retail Supply strategy - Sold', () => {
         expect(quantity).toBe(100);
 
         // Day 4. Keep previous order
+        console.log(JSON.stringify(product.supply));
         product.supply.stock = quantity;
         product.supply.purchase = quantity;
 
         quantity = sold.calculate(product);
         product.supply.parcel = quantity;
+        console.log(JSON.stringify(product.supply));
         expect(quantity).toBe(100);
 
         // Day 5. Reached max sales (less than we have in stock)
