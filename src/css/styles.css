@@ -12,6 +12,10 @@ body.unit_list table.unit-list-2014 {
     table-layout: fixed;
 }
 
+table.unit-list-2014 td.alerts {
+    white-space: normal;
+}
+
 /* end global overrides */
 
 .bold {

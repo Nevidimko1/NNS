@@ -100,7 +100,7 @@ export class FilterUnits extends Runnable {
                 <col style="width: 80px">
                 <col style="width: 40%">
                 <col style="width: 60px">
-                <col style="width: 40px">
+                <col style="width: 45px">
             </colgroup>
         `);
 

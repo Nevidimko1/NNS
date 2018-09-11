@@ -147,7 +147,7 @@ export class RetailService extends DataService {
                         <a target="_blank" href="${shopTradingHallUrl}">${shopInfo.name} (${shopInfo.id})</a>.
                         Products doesn't match prices.`;
                     this.status.log(err, LOG_STATUS.ERROR);
-                    return Promise.reject();
+                    return Promise.reject(new Error(err));
                 }
 
                 shopInfo.products.forEach((product: IShopProduct, i: number) => product.price = prices[i]);
@@ -194,7 +194,7 @@ export class RetailService extends DataService {
                     const err = `<a target="_blank" href="${shopSupplyUrl}">${shopInfo.name} (${shopInfo.id})</a>
                          is missing a supplier, or has too many suppliers!`;
                     this.status.log(err, LOG_STATUS.ERROR);
-                    return Promise.reject();
+                    return Promise.reject(new Error(err));
                 }
 
                 shopInfo.products.forEach((product: IShopProduct) => {
@@ -253,10 +253,12 @@ export class RetailService extends DataService {
         const storageItem = LS.get(this.storageKey(unit.id));
         return this.shopInfoIsUpToDate(storageItem)
             .then(() => this.restoreShopInfo(storageItem.data as IShop))
-            .catch((updatedUnit: IUnitItem) => {
-                if (updatedUnit) {
-                    return this.fetchShopInfo(updatedUnit);
+            .catch((result: IUnitItem | any) => {
+                if (result instanceof Error === false) {
+                    const unitToFetch = result || unit;
+                    return this.fetchShopInfo(unitToFetch);
                 } else {
+                    console.error(result);
                     return Promise.reject();
                 }
             });
