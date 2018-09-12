@@ -2,13 +2,19 @@ import { ISharePriceStrategy } from '../../models/priceStrategy.model';
 import { IShopProduct } from '../../../../../shared/models/shop.model';
 import { CalcFunctions } from '../../../../../utils/calcFunctions';
 import { numberify } from '../../../../../utils';
+import { Status } from '../../../../../shared/status/status.singletone';
+import { LOG_STATUS } from '../../../../../shared/enums/logStatus.enum';
 
 export class SharePriceStrategy implements ISharePriceStrategy {
     public label: string;
     public description: string;
     public share: number;
 
-    constructor() { }
+    private status: Status;
+
+    constructor() {
+        this.status = Status.getInstance();
+    }
 
     public calculate = (product: IShopProduct): number => {
         // в расчетах предполагаем, что парсер нам гарантирует 0 или число, если элемент есть в массиве.
@@ -52,7 +58,11 @@ export class SharePriceStrategy implements ISharePriceStrategy {
             // если товар уже был и цена стояла а продаж еще не было, плохо это. если не стояло, ставим базовую
             if (product.stock > product.deliver) {
                 if (product.price > 0) {
-                    console.error(`0 sales for min price (${product.price})`);
+                    const log = `<span style="position: relative;width: 10px;margin-left: 4px;height: 16px;display: inline-block;">
+                        <span class="log-prod-img" style="background-image: url(${product.imageSrc});" title="${product.name}"></span>
+                    </span>
+                    <span>${product.name}: 0 sales for min price (${product.price})</span>`;
+                    this.status.log(log, LOG_STATUS.ERROR);
                 } else {
                     price = CalcFunctions.calcBaseRetailPrice(product.quality, localPrice, localQuality);
                 }
@@ -77,7 +87,11 @@ export class SharePriceStrategy implements ISharePriceStrategy {
                     if (product.price === 0) {
                         price = CalcFunctions.calcBaseRetailPrice(product.quality, localPrice, localQuality);
                     } else {
-                        console.error(`0 sales for min price (${product.price})`);
+                        const log = `<span style="position: relative;width: 10px;margin-left: 4px;height: 16px;display: inline-block;">
+                            <span class="log-prod-img" style="background-image: url(${product.imageSrc});" title="${product.name}"></span>
+                        </span>
+                        <span>${product.name}: 0 sales for min price (${product.price})</span>`;
+                        this.status.log(log, LOG_STATUS.ERROR);
                     }
                 }
             }
