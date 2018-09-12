@@ -45,7 +45,7 @@ export class SupplyComponent extends ManagementSubComponent {
         });
 
         $(`table.unit-list-2014 thead tr:eq(1) th.${SupplyUnit.COLUMN_CLASS}`).append(`
-            <button id="supplies-v2-set-all" class="nns-button">Supply</button>
+            <button id="supplies-set-all" class="nns-button">Supply</button>
         `);
         $('#supplies-set-all').on('click', this.updateSupplies);
 
