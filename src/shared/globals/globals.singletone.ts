@@ -44,7 +44,7 @@ export class Globals implements IGlobals {
         }
 
         const unitList = this.url.match(/view\/(\d+)(\/unit_list)?(\/building)?/);
-        if (unitList && Number(unitList[1]) === this.companyInfo.id && !unitList[3]) {
+        if (unitList && Number(unitList[1]) === this.companyInfo.id && unitList[2] && !unitList[3]) {
             pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
         } else if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
             pageInfo.pageType = PAGE_TYPES.UNIT_PAGE;
