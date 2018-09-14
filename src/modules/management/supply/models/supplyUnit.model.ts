@@ -98,6 +98,9 @@ export class SupplyUnit {
 
     public update = () => this.service.update(this);
 
+    public get type(): string {
+        return this.data.unit_class_kind;
+    }
     public get selectedStrategy(): ISupplyStrategy {
         return this.service.strategies.filter((s: ISupplyStrategy) => s.label === this.settings.strategy)[0];
     }

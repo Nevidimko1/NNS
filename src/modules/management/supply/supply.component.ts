@@ -6,6 +6,7 @@ import { Status } from '../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../shared/enums/logStatus.enum';
 
 export class SupplyComponent extends ManagementSubComponent {
+    private readonly ORDER = ['shop', 'workshop', 'warehouse', 'other'];
     private status: Status;
 
     private supplyUnits: SupplyUnit[];
@@ -15,6 +16,18 @@ export class SupplyComponent extends ManagementSubComponent {
 
         this.status = Status.getInstance();
         this.supplyUnits = [];
+    }
+
+    private updateSupply = (unit: SupplyUnit): Promise<any> => {
+        return unit.update()
+            .then(() => {
+                this.status.progressTick();
+                return true;
+            })
+            .catch(() => {
+                this.status.progressTick();
+                return false;
+            });
     }
 
     private updateSupplies = (): void => {
@@ -30,11 +43,19 @@ export class SupplyComponent extends ManagementSubComponent {
         this.status.start(filtered.length);
         this.status.log('Updating supplies...', LOG_STATUS.SUCCESS);
 
-        filtered.forEach((unit: SupplyUnit) => {
-            unit.update()
-                .then(this.status.progressTick)
-                .catch(this.status.progressTick);
-        });
+        // each unit type is executed in group and next group is waiting until previous execution has finished
+        this.ORDER.map((o: string) => {
+            const g = filtered.filter((unit: SupplyUnit) => unit.type === o || (o === '###' && this.ORDER.indexOf(unit.type) === -1));
+            if (!g.length) {
+                return () => Promise.resolve();
+            }
+            return (): Promise<any> => {
+                this.status.log(`Updating supplies for units with type ${o}`);
+                return Promise.all(g.map((unit: SupplyUnit) => this.updateSupply(unit)))
+                    .then(() => this.status.log(`Updating supplies for units with type ${o} finished`));
+            };
+        })
+        .reduce((p, g) => p.then(g), Promise.resolve());
     }
 
     public init = (): void => {
