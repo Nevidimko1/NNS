@@ -102,13 +102,13 @@ export class SupplyUnit {
         return this.data.unit_class_kind;
     }
     public get selectedStrategy(): ISupplyStrategy {
-        return this.service.strategies.filter((s: ISupplyStrategy) => s.label === this.settings.strategy)[0];
+        return this.service ? this.service.strategies.filter((s: ISupplyStrategy) => s.label === this.settings.strategy)[0] : null;
     }
     public get selectedMin(): IMinSupplyStrategy {
-        return this.service.min.filter((s: IMinSupplyStrategy) => s.label === this.settings.min)[0];
+        return this.service ? this.service.min.filter((s: IMinSupplyStrategy) => s.label === this.settings.min)[0] : null;
     }
     public get selectedMax(): IMaxSupplyStrategy {
-        return this.service.max.filter((s: IMaxSupplyStrategy) => s.label === this.settings.max)[0];
+        return this.service ? this.service.max.filter((s: IMaxSupplyStrategy) => s.label === this.settings.max)[0] : null;
     }
 
 }

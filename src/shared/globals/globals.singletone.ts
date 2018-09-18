@@ -43,8 +43,10 @@ export class Globals implements IGlobals {
             return;
         }
 
-        const unitList = this.url.match(/view\/(\d+)(\/unit_list)?(\/building)?/);
-        if (unitList && Number(unitList[1]) === this.companyInfo.id && unitList[2] && !unitList[3]) {
+        // const unitList = this.url.match(/view\/(\d+)(\/unit_list)?(\/building)?/);
+        const unitList = this.url.match(/view\/(\d+)(\/[a-zA-Z_]+)?(\/[a-zA-Z_]+)?/);
+        if (unitList && Number(unitList[1]) === this.companyInfo.id &&
+            (!unitList[2] || unitList[2] === '/unit_list') && !unitList[3]) {
             pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
         } else if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
             pageInfo.pageType = PAGE_TYPES.UNIT_PAGE;

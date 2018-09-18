@@ -1,4 +1,4 @@
-import { SoldRetailSupplyStrategy } from '../src/modules/management/retailSupply/strategies/supply/sold';
+import { SoldRetailSupplyStrategy } from '../src/modules/management/supply/retailSupply/strategies/supply/sold';
 import { IShopProduct } from '../src/shared/models/shop.model';
 
 describe('Retail Supply strategy - Sold', () => {
