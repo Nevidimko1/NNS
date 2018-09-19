@@ -69,6 +69,7 @@ export class RetailPricesComponent extends ManagementSubComponent {
             });
 
         if (!filteredRows.length) {
+            this.status.reset();
             this.status.log('No units to update price', LOG_STATUS.SUCCESS);
             return;
         }

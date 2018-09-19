@@ -14,7 +14,7 @@ export class Api {
         const status = Status.getInstance();
         return new Promise((resolve, reject) => {
             $.get(url, (content) => {
-                status.restCalls++;
+                status.restCallUsed();
                 resolve(content);
             })
             .fail(reject);
@@ -25,7 +25,7 @@ export class Api {
         return new Promise((resolve, reject) => {
             const status = Status.getInstance();
             $.post(url, data, (content) => {
-                status.restCalls++;
+                status.restCallUsed();
                 resolve(content);
             })
             .fail(reject);
@@ -41,7 +41,7 @@ export class Api {
                 type: 'POST',
                 dataType: 'JSON',
                 success: (content) => {
-                    status.restCalls++;
+                    status.restCallUsed();
                     resolve(content);
                 },
                 error: (e) => reject(e)

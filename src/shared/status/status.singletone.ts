@@ -71,6 +71,19 @@ export class Status {
         return true;
     }
 
+    public reset = (): void => {
+        this.progress = { current: 0, target: 0 };
+        this.restCalls = 0;
+        this.startedAt = new Date();
+        this.progressStage = PROGRESS_STAGES.NOT_STARTED;
+        this.notify();
+    }
+
+    public restCallUsed = (): void => {
+        this.restCalls++;
+        this.notify();
+    }
+
     public log = (text: string, status: LOG_STATUS = LOG_STATUS.NORMAL): void => {
         this.logs.push({ date: new Date(), text, status});
         this.notify();

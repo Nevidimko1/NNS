@@ -4,7 +4,7 @@ import { PAGE_TYPES } from '../../enums/pageTypes.enum';
 
 export interface IPageInfo {
     pageType: PAGE_TYPES;
-    unitId: string;
+    unitId: number;
     unitType: UNIT_TYPES;
     unitPage: UNIT_PAGES;
 }

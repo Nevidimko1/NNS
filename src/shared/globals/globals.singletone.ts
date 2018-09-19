@@ -50,17 +50,17 @@ export class Globals implements IGlobals {
             pageInfo.pageType = PAGE_TYPES.UNIT_LIST;
         } else if (/unit\/view\/[0-9]{1,12}/.exec(this.url)) {
             pageInfo.pageType = PAGE_TYPES.UNIT_PAGE;
-            pageInfo.unitId = this.url.match(/[0-9]{1,12}/)[0];
+            pageInfo.unitId = Number(this.url.match(/[0-9]{1,12}/)[0]);
 
             if (!/unit\/view\/[0-9]{1,12}\/[a-zA-Z]+/.exec(this.url)) {
                 pageInfo.unitPage = UNIT_PAGES.MAIN;
             } else {
                 const parsed = this.url.match(/unit\/view\/([0-9]{1,12})\/([a-zA-Z_\/]+)/);
-                pageInfo.unitId = parsed[1];
+                pageInfo.unitId = Number(parsed[1]);
                 pageInfo.unitPage = UNIT_PAGES[parsed[2].toUpperCase()];
             }
-            const unitTypeString = $('body').find('.bg-image').attr('class').split(' ')[1].split('-')[1].split('_')[0];
-            pageInfo.unitType = UNIT_TYPES[unitTypeString.toUpperCase()];
+            const unitInfo = this.unitsList.filter(u => u.id === pageInfo.unitId)[0];
+            pageInfo.unitType = unitInfo ? UNIT_TYPES[unitInfo.unit_class_kind.toUpperCase()] : '';
         }
         return pageInfo;
     }
@@ -96,7 +96,6 @@ export class Globals implements IGlobals {
                 this.companyInfo = {
                     id: $('a.dashboard').prop('href') ? Number($('a.dashboard').prop('href').match(/view\/(\d+)\/dashboard/)[1]) : 0
                 };
-                this.pageInfo = this.getPageInfo();
                 resolve();
             } catch (e) {
                 reject(e);
@@ -108,6 +107,10 @@ export class Globals implements IGlobals {
                     this.fetchUnitsList(),
                     this.fetchUnitTypesList()
                 ]);
+            })
+            .then(() => {
+                this.pageInfo = this.getPageInfo();
+                return true;
             });
     }
 

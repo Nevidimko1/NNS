@@ -35,6 +35,10 @@ export class StatusBar extends ManagementSubComponent {
             $('#status-bar .status-progress').html(`<span>${this.status.progress.current} / ${this.status.progress.target}</span>`);
             $('#status-bar .status-rest-calls').html(`${this.status.restCalls}`);
             $('#status-bar .status-time').html(`${this.status.elapsed()}`);
+        } else {
+            $('#status-bar .status-progress').html(``);
+            $('#status-bar .status-rest-calls').html(``);
+            $('#status-bar .status-time').html(``);
         }
 
         // check incoming log message

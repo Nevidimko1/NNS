@@ -36,6 +36,7 @@ export class SupplyComponent extends ManagementSubComponent {
             .filter((unit: SupplyUnit) => unit.selectedStrategy && !unit.selectedStrategy.skip);
 
         if (!filtered.length) {
+            this.status.reset();
             this.status.log('No units to update supply', LOG_STATUS.SUCCESS);
             return;
         }
