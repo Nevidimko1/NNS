@@ -76,24 +76,28 @@ export class SupplyUnit {
         // Strategy dropdown change
         this.row.find('.strategy-select').on('change', (e) => {
             this.settings.strategy = $(e.target).val() as string;
-            document.dispatchEvent(new Event(SupplyUnit.CHANGE_EVENT));
+            this.dispatchChangeEvent();
         });
 
         // Min dropdown change
         this.row.find('.min-select').on('change', (e) => {
             this.settings.min = $(e.target).val() as string;
-            document.dispatchEvent(new Event(SupplyUnit.CHANGE_EVENT));
+            this.dispatchChangeEvent();
         });
 
         // Max dropdown change
         this.row.find('.max-select').on('change', (e) => {
             this.settings.max = $(e.target).val() as string;
-            document.dispatchEvent(new Event(SupplyUnit.CHANGE_EVENT));
+            this.dispatchChangeEvent();
         });
 
         this.row.find('select.strategy-select').val(this.settings.strategy);
         this.row.find('select.min-select').val(this.settings.min);
         this.row.find('select.max-select').val(this.settings.max);
+    }
+
+    private dispatchChangeEvent = (): void => {
+        document.dispatchEvent(new CustomEvent(SupplyUnit.CHANGE_EVENT, { detail: this.settings }));
     }
 
     public update = () => this.service.update(this);

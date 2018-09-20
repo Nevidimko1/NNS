@@ -10,6 +10,7 @@ export class SupplyComponent extends ManagementSubComponent {
     private status: Status;
 
     private supplyUnits: SupplyUnit[];
+    private settings: ISupplyUnitSettings[];
 
     constructor() {
         super('Supply');
@@ -71,23 +72,25 @@ export class SupplyComponent extends ManagementSubComponent {
         `);
         $('#supplies-set-all').on('click', this.updateSupplies);
 
-        const settings = <ISupplyUnitSettings[]>this.getSettings() || {};
+        this.settings = <ISupplyUnitSettings[]>this.getSettings() || [];
         this.supplyUnits = $('table.unit-list-2014 tbody tr')
             .toArray()
             .map((row: HTMLTableRowElement) => {
                 const id = Number($(row).find('.unit_id').text()),
-                    info: IUnitItem = this.globals.unitsList.filter((item: IUnitItem) => item.id === id)[0];
-                return new SupplyUnit(info, $(row), settings[id]);
+                    info: IUnitItem = this.globals.unitsList.filter((item: IUnitItem) => item.id === id)[0],
+                    setting: ISupplyUnitSettings = this.settings.filter(s => s.id === id)[0];
+                return new SupplyUnit(info, $(row), setting);
             });
 
-        document.addEventListener(SupplyUnit.CHANGE_EVENT, () => {
-            this.saveSettings(this.supplyUnits
-                .filter((unit: SupplyUnit) => unit)
-                .reduce((result: Object, unit: SupplyUnit) => {
-                    result[unit.data.id] = unit.settings;
-                    return result;
-                }, {})
-            );
+        document.addEventListener(SupplyUnit.CHANGE_EVENT, (e: CustomEvent) => {
+            const setting: ISupplyUnitSettings = e.detail;
+            const ex = this.settings.filter(s => s.id === setting.id)[0];
+            if (ex) {
+                this.settings[this.settings.indexOf(ex)] = setting;
+            } else {
+                this.settings.push(setting);
+            }
+            this.saveSettings(this.settings);
         });
 
     }
