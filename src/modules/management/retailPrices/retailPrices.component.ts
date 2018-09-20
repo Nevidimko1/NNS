@@ -77,15 +77,18 @@ export class RetailPricesComponent extends ManagementSubComponent {
         this.status.start(filteredRows.length);
         this.status.log('Updating prices...', LOG_STATUS.SUCCESS);
 
-        filteredRows
-            .forEach((row: HTMLTableRowElement) => {
-                const info = this.getUnitItemByRow(row),
-                    priceStrategy = this.getSelectedStrategy(row),
-                    minPriceMultiplier = Number($(row).find('select.min-price-select').val());
+        this.globals.fetchUnitsList()
+            .then(() => {
+                filteredRows
+                    .forEach((row: HTMLTableRowElement) => {
+                        const info = this.getUnitItemByRow(row),
+                            priceStrategy = this.getSelectedStrategy(row),
+                            minPriceMultiplier = Number($(row).find('select.min-price-select').val());
 
-                this.service.updateUnitPrices(info, priceStrategy, minPriceMultiplier)
-                    .then(this.status.progressTick)
-                    .catch(this.status.progressTick);
+                        this.service.updateUnitPrices(info, priceStrategy, minPriceMultiplier)
+                            .then(this.status.progressTick)
+                            .catch(this.status.progressTick);
+                    });
             });
     }
 

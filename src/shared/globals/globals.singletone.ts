@@ -77,11 +77,6 @@ export class Globals implements IGlobals {
             });
     }
 
-    private fetchUnitsList = (): Promise<any> => {
-        return this.getUnitList()
-            .then((unitsList: IUnitItem[]) => this.unitsList = unitsList);
-    }
-
     public init = (): Promise<any> => {
         return new Promise((resolve, reject) => {
             try {
@@ -114,14 +109,19 @@ export class Globals implements IGlobals {
             });
     }
 
-    public getUnitList = (params?: string): Promise<IUnitItem[]> => {
+    public fetchUnitsList = (params?: string): Promise<IUnitItem[]> => {
         const uid = new Date().getTime();
         let url = `https://virtonomica.ru/api/${this.info.realm}/main/company/units?id=${this.companyInfo.id}&pagesize=${uid}`;
         if (params) {
             url += `&${params}`;
         }
         return Api.get(url)
-            .then((response: IUnitsResponse) => this.service.parseUnitsResponse(response));
+            .then((response: IUnitsResponse) => this.service.parseUnitsResponse(response))
+            .then((unitsList: IUnitItem[]) => this.unitsList = unitsList);
+    }
+
+    public getUnitList = (params?: string): IUnitItem[] => {
+        return this.unitsList;
     }
 
     static getInstance(): Globals {

@@ -224,44 +224,39 @@ export class RetailService extends DataService {
     private restoreShopInfo = (shopInfo: IShop): Promise<IShop> => {
         // Before providing shopInfo we need to make sure prices and supplies are latest in case user did some changes manually
         return this.updatePrices(shopInfo)
-            .then(this.updateSupplies);
+            .then(this.updateSupplies)
+            .catch((e) => {
+                console.error(e);
+                return Promise.reject(e);
+            });
     }
 
-    private shopInfoIsUpToDate = (storageItem: StorageItem): Promise<IUnitItem | void> => {
+    private shopInfoIsUpToDate = (storageItem: StorageItem): boolean => {
         if (!storageItem || !storageItem.data || !storageItem.today) {
-            return Promise.reject();
+            return false;
+        }
+        const shopInfo = (storageItem.data as IShop);
+        const unit = this.globals.unitsList.filter(item => item.id === shopInfo.id)[0];
+        if (!unit) {
+            return false;
         }
 
-        return this.globals.getUnitList('unit_type_id=1886')
-            .then((unitList: IUnitItem[]) => {
-                const shopInfo = (storageItem.data as IShop);
-                const unit = unitList.filter(item => item.id === shopInfo.id)[0];
-                if (!unit) {
-                    return Promise.reject();
-                }
-
-                const p1 = unit.products.map((p: IUnitItemProduct) => p.id).sort();
-                const p2 = shopInfo.products.map((p: IShopProduct) => p.id).sort();
-                if (p1.length !== p2.length || p1.filter((p, i) => p !== p2[i]).length) {
-                    return Promise.reject(unit);
-                }
-                return Promise.resolve();
-            });
+        const p1 = unit.products.map((p: IUnitItemProduct) => p.id).sort();
+        const p2 = shopInfo.products.map((p: IShopProduct) => p.id).sort();
+        if (p1.length !== p2.length || p1.filter((p, i) => p !== p2[i]).length) {
+            return false;
+        }
+        return true;
     }
 
     private retrieveUnitInfo = (unit: IUnitItem): Promise<IShop> => {
         const storageItem = LS.get(this.storageKey(unit.id));
-        return this.shopInfoIsUpToDate(storageItem)
-            .then(() => this.restoreShopInfo(storageItem.data as IShop))
-            .catch((result: IUnitItem | any) => {
-                if (result instanceof Error === false) {
-                    const unitToFetch = result || unit;
-                    return this.fetchShopInfo(unitToFetch);
-                } else {
-                    console.error(result);
-                    return Promise.reject();
-                }
-            });
+        if (this.shopInfoIsUpToDate(storageItem)) {
+            return this.restoreShopInfo(storageItem.data as IShop);
+        } else {
+            const u = this.globals.unitsList.filter(item => item.id === unit.id)[0] || unit;
+            return this.fetchShopInfo(u);
+        }
     }
 
     public getUnitInfo = (unit: IUnitItem): Promise<IShop> => {

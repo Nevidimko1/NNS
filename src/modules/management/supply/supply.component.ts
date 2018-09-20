@@ -57,7 +57,7 @@ export class SupplyComponent extends ManagementSubComponent {
                     .then(() => this.status.log(`Updating supplies for units with type ${o} finished`));
             };
         })
-        .reduce((p, g) => p.then(g), Promise.resolve());
+        .reduce((p, g) => p.then(g), this.globals.fetchUnitsList());
     }
 
     public init = (): void => {
