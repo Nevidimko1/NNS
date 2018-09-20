@@ -1,9 +1,9 @@
 import { NotSelectedWarehouseSupplyStrategy } from './notSelected';
 import { ZeroWarehouseSupplyStrategy } from './zero';
-import { SoldWarehouseSupplyStrategy } from './sold';
+import { Sold3WarehouseSupplyStrategy } from './sold3x';
 
 export const WarehouseSupplyStrategies = [
     new NotSelectedWarehouseSupplyStrategy(),
     new ZeroWarehouseSupplyStrategy(),
-    new SoldWarehouseSupplyStrategy()
+    new Sold3WarehouseSupplyStrategy()
 ];

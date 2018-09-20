@@ -17,13 +17,13 @@ export class Management extends Runnable {
 
     constructor() {
         super();
-
-        this.statusBar = new StatusBar();
-        this.retailPrices = new RetailPricesComponent();
-        this.supply = new SupplyComponent();
     }
 
     protected run(): void {
+        this.statusBar = new StatusBar();
+        this.retailPrices = new RetailPricesComponent();
+        this.supply = new SupplyComponent();
+
         this.statusBar.init();
         this.retailPrices.init();
         this.supply.init();

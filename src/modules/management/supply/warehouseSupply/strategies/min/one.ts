@@ -1,6 +1,6 @@
-import { IMinSupplyStrategy } from '../../../models/minSupplyStrategy.model';
+import { ISupplyStrategy } from '../../../models/supplyStrategy.model';
 
-export class OneRetailMinSupplyStrategy implements IMinSupplyStrategy {
+export class OneWarehouseMinSupplyStrategy implements ISupplyStrategy {
     public label: string;
     public description: string;
 

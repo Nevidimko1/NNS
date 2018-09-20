@@ -1,7 +1,7 @@
 import { ISupplyStrategy } from '../../../models/supplyStrategy.model';
 import { IWarehouseProduct } from '../../../../../../shared/models/warehouse.model';
 
-export class SoldWarehouseSupplyStrategy implements ISupplyStrategy {
+export class Sold3WarehouseSupplyStrategy implements ISupplyStrategy {
     public label: string;
     public description: string;
 

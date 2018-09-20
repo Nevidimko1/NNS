@@ -1,15 +1,15 @@
 import { ISupplyStrategy } from '../../../models/supplyStrategy.model';
 
-export class ZeroWarehouseMinSupplyStrategy implements ISupplyStrategy {
+export class TenMWarehouseMinSupplyStrategy implements ISupplyStrategy {
     public label: string;
     public description: string;
 
     constructor() {
-        this.label = '0';
-        this.description = 'No minimum limit';
+        this.label = '10 m';
+        this.description = 'Max value of 10 000 000';
     }
 
     public calculate = (): number => {
-        return 0;
+        return Math.pow(10, 7);
     }
 }

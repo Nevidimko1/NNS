@@ -91,7 +91,11 @@ export class Globals implements IGlobals {
                 this.companyInfo = {
                     id: $('a.dashboard').prop('href') ? Number($('a.dashboard').prop('href').match(/view\/(\d+)\/dashboard/)[1]) : 0
                 };
-                resolve();
+                if (!this.companyInfo.id) {
+                    reject();
+                } else {
+                    resolve();
+                }
             } catch (e) {
                 reject(e);
             }
@@ -106,7 +110,8 @@ export class Globals implements IGlobals {
             .then(() => {
                 this.pageInfo = this.getPageInfo();
                 return true;
-            });
+            })
+            .catch(() => { });
     }
 
     public fetchUnitsList = (params?: string): Promise<IUnitItem[]> => {

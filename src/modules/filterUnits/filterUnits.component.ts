@@ -2,7 +2,6 @@ import { Runnable } from '../common/runnable';
 import { UNIT_TYPES } from '../../shared/enums/unitTypes.enum';
 import { UNIT_PAGES } from '../../shared/enums/unitPages.enum';
 import { PAGE_TYPES } from '../../shared/enums/pageTypes.enum';
-import { Globals } from '../../shared/globals/globals.singletone';
 import { LS } from '../../utils/storage';
 import { IFilterUnitsModel } from './models/filterUnit.model';
 
@@ -11,25 +10,11 @@ export class FilterUnits extends Runnable {
     protected readonly unitTypes = [UNIT_TYPES.ANY];
     protected readonly unitPages = [UNIT_PAGES.ANY];
 
-    private readonly storageKey: string;
-
-    private globals: Globals;
     private data: IFilterUnitsModel;
+    private storageKey: string;
 
     constructor() {
         super();
-
-        this.globals = Globals.getInstance();
-        this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/FilterUnits`;
-        this.data = {
-            filters: {
-                filterById: '',
-                filterByCity: '',
-                filterByName: '',
-                filterBySize: '',
-                filterByProducts: ''
-            }
-        };
     }
 
     private filterUnits(): void {
@@ -87,6 +72,17 @@ export class FilterUnits extends Runnable {
     }
 
     protected run(): void {
+        this.storageKey = `${this.globals.info.realm}/${this.globals.companyInfo.id}/${this.globals.pageInfo.pageType}/FilterUnits`;
+        this.data = {
+            filters: {
+                filterById: '',
+                filterByCity: '',
+                filterByName: '',
+                filterBySize: '',
+                filterByProducts: ''
+            }
+        };
+
         // add class to the body to have full-width page content
         $('body').addClass('unit_list');
 

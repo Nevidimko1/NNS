@@ -17,8 +17,16 @@ export class WarehouseService extends DataService {
                 .then(html => {
                     const $html = $(html),
                         suppliers = $html.find('tr.wborder').toArray(),
-                        ids = suppliers.map(e => numberify($(e).find('td:eq(1) a').attr('href').split('/')[7])),
-                        names = suppliers.map(e => $(e).find('td:eq(1) a').text()),
+                        ids = suppliers.map(e => {
+                            const td = $(e).find('td:eq(1)'),
+                                a = td.find('a');
+                            return a.text() ? numberify(a.attr('href').split('/')[7]) : -1;
+                        }),
+                        names = suppliers.map(e => {
+                            const td = $(e).find('td:eq(1)'),
+                                a = td.find('a');
+                            return a.text() || td.text().trim().split('\n')[0].trim();
+                        }),
                         offers = suppliers.map(e => numberify($(e).attr('id').substr(1))),
                         myselves = suppliers.map(e => $(e).hasClass('myself')),
                         availables = suppliers.map(e => numberify($(e).find('td:eq(3)').text()
@@ -88,6 +96,7 @@ export class WarehouseService extends DataService {
                     mPurchases = rows.map(e => numberify($(e as any).find('td:eq(3)').text())),
                     mSellContracts = rows.map(e => numberify($(e as any).find('td:eq(5)').text())),
                     mSolds = rows.map(e => numberify($(e as any).find('td:eq(8)').text())),
+                    mStocks = rows.map(e => numberify($(e as any).find('td:eq(1)').text())),
                     mBuyContracts = rows.map(e => numberify($(e as any).find('td:eq(6)').text())),
                     mBoughts = rows.map(e => numberify($(e as any).find('td:eq(7)').text()));
 
@@ -192,7 +201,7 @@ export class WarehouseService extends DataService {
                         sold: mSolds[mi],
                         buyContract: mBuyContracts[mi],
                         bought: mBoughts[mi],
-                        stock: stockz[mi] || 0,
+                        stock: mStocks[mi],
                         contracts: contracts,
                         suppliers: []
                     };

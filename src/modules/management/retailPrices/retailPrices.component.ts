@@ -87,7 +87,10 @@ export class RetailPricesComponent extends ManagementSubComponent {
 
                         this.service.updateUnitPrices(info, priceStrategy, minPriceMultiplier)
                             .then(this.status.progressTick)
-                            .catch(this.status.progressTick);
+                            .catch((e) => {
+                                console.error(e);
+                                this.status.progressTick();
+                            });
                     });
             });
     }

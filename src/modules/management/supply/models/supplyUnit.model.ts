@@ -3,9 +3,7 @@ import { ISupplyUnitSettings } from './supplyUnit.settings.model';
 import { SupplyService } from '../common/supply.service';
 import { RetailSupplyService } from '../retailSupply/retailSupply.service';
 import { ISupplyStrategy } from './supplyStrategy.model';
-import { IMinSupplyStrategy } from './minSupplyStrategy.model';
 import { WarehouseSupplyService } from '../warehouseSupply/warehouseSupply.service';
-import { IMaxSupplyStrategy } from './maxSupplyStrategy.model';
 
 export class SupplyUnit {
     static readonly CHANGE_EVENT = 'SupplyUnit.changeEvent';
@@ -58,14 +56,14 @@ export class SupplyUnit {
                 </select>
                 <select class="min-select nns-select full-w mb-3">
                     ${
-                        this.service.min.map((item: IMinSupplyStrategy) => {
+                        this.service.min.map((item: ISupplyStrategy) => {
                             return `<option title="${item.description}">${item.label}</option>`;
                         }).join('')
                     }
                 </select>
                 <select class="max-select nns-select full-w">
                     ${
-                        this.service.max.map((item: IMinSupplyStrategy) => {
+                        this.service.max.map((item: ISupplyStrategy) => {
                             return `<option title="${item.description}">${item.label}</option>`;
                         }).join('')
                     }
@@ -108,11 +106,11 @@ export class SupplyUnit {
     public get selectedStrategy(): ISupplyStrategy {
         return this.service ? this.service.strategies.filter((s: ISupplyStrategy) => s.label === this.settings.strategy)[0] : null;
     }
-    public get selectedMin(): IMinSupplyStrategy {
-        return this.service ? this.service.min.filter((s: IMinSupplyStrategy) => s.label === this.settings.min)[0] : null;
+    public get selectedMin(): ISupplyStrategy {
+        return this.service ? this.service.min.filter((s: ISupplyStrategy) => s.label === this.settings.min)[0] : null;
     }
-    public get selectedMax(): IMaxSupplyStrategy {
-        return this.service ? this.service.max.filter((s: IMaxSupplyStrategy) => s.label === this.settings.max)[0] : null;
+    public get selectedMax(): ISupplyStrategy {
+        return this.service ? this.service.max.filter((s: ISupplyStrategy) => s.label === this.settings.max)[0] : null;
     }
 
 }

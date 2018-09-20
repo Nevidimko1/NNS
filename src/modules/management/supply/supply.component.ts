@@ -25,7 +25,8 @@ export class SupplyComponent extends ManagementSubComponent {
                 this.status.progressTick();
                 return true;
             })
-            .catch(() => {
+            .catch((e) => {
+                console.error(e);
                 this.status.progressTick();
                 return false;
             });
