@@ -46,7 +46,7 @@ export class WarehouseSupplyService extends SupplyService {
 
         const topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQualityDiff * p.quality));
         topSuppliers.sort(this.compareSuppliersFn);
-        return topSuppliers.splice(0, 10);
+        return topSuppliers;
     }
 
     private createChangeObject = (id: number, quantity: number, t: IWarehouseContract): any => ({
@@ -69,14 +69,23 @@ export class WarehouseSupplyService extends SupplyService {
                     newSuppliers = (p.contracts as any).concat(newSuppliers);
                     newSuppliers.sort((a, b) => ((b.myself as any) - (a.myself as any)) || a.pqr - b.pqr);
 
-                    console.log(`TOP Suppliers for ${p.name}: `);
+                    console.log(`\nTOP Suppliers for ${p.name}: `);
                     console.table(newSuppliers);
 
                     let toOrder = unit.selectedStrategy.calculate(p);
                     const min = unit.selectedMin ? unit.selectedMin.calculate(p) : 0;
                     let maxOrderValue = unit.selectedMax ? unit.selectedMax.calculate(p) : Infinity;
+
                     // don't order too expensive products!
-                    const maxPQR = (p.purchase / p.quality) * 5;
+                    // for products with no suppliers yet, create order with min quality of suppliers average quality
+                    let maxPQR = 0;
+                    let minQuality = 0;
+                    if (p.purchase) {
+                        maxPQR = (p.purchase / p.quality) * 5;
+                    } else {
+                        maxPQR = newSuppliers.reduce((r, s) => r + s.pqr, 0) / (newSuppliers.length || 1);
+                        minQuality = newSuppliers.reduce((r, s) => r + s.quality, 0) / (newSuppliers.length || 1);
+                    }
 
                     const removes = [];
                     const changes = newSuppliers.map((t: IWarehouseContract, ti: number) => {
@@ -100,6 +109,11 @@ export class WarehouseSupplyService extends SupplyService {
                                 return;
                             }
 
+                            // skip if quality is less that required
+                            if (minQuality > t.quality) {
+                                return;
+                            }
+
                             toOrder -= quantity;
                             if (t.parcel === quantity) {
                                 // skip same orders. Don't change them
@@ -114,8 +128,9 @@ export class WarehouseSupplyService extends SupplyService {
                                 // const notGood = false;
                                 const sIndex = newSuppliers.indexOf(newSuppliers.filter(s => s.offer === t.offer)[0]);
                                 const notGood = !!newSuppliers.slice(0, sIndex).filter((s: any) => !s.parcel || s.parcel === min)[0];
-                                if (t.parcel !== min) {
-                                    return this.createChangeObject(info.id, min, t);
+                                const m = Math.min(min, t.available);
+                                if (t.parcel !== m) {
+                                    return this.createChangeObject(info.id, m, t);
                                 } else if (notGood) {
                                     removes.push(t);
                                 }

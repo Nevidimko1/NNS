@@ -29,8 +29,9 @@ export class WarehouseService extends DataService {
                         }),
                         offers = suppliers.map(e => numberify($(e).attr('id').substr(1))),
                         myselves = suppliers.map(e => $(e).hasClass('myself')),
-                        availables = suppliers.map(e => numberify($(e).find('td:eq(3)').text()
-                            .replace(/( |\t)/g, '').trim().split('\n')[0])),
+                        availables = suppliers
+                            .map(e => $(e).find('td:eq(3)').text().replace(/( |\t)/g, '').trim().split('\n')[0])
+                            .map(n => n.match(/\d+/) ? numberify(n) : Infinity),
                         prices = suppliers.map(e => numberify($(e).find('td:eq(5)').text())),
                         qualities = suppliers.map(e => numberify($(e).find('td:eq(6)').text())),
                         isWarehouses = suppliers.map(e => $(e).find('td:eq(1) i').text().split(' :: ')[1] === 'Склад');
