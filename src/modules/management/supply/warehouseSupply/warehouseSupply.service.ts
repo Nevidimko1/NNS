@@ -42,9 +42,12 @@ export class WarehouseSupplyService extends SupplyService {
 
     private topSuppliers = (p: IWarehouseProduct): IWarehouseSupplier[] => {
         // top not mine suppliers.
-        const minQualityDiff = 0.95;
+        const minQualityDiff = 0.90;
 
-        const topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQualityDiff * p.quality));
+        const avgQuality = p.suppliers.reduce((r, s) => r + s.quality, 0) / (p.suppliers.length || 1);
+        const minQuality = Math.min(avgQuality, p.quality) * minQualityDiff;
+        console.log('MIN:', minQuality);
+        const topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQuality));
         topSuppliers.sort(this.compareSuppliersFn);
         return topSuppliers;
     }
@@ -115,8 +118,9 @@ export class WarehouseSupplyService extends SupplyService {
                             }
 
                             toOrder -= quantity;
-                            if (t.parcel === quantity) {
-                                // skip same orders. Don't change them
+                            if (t.parcel === quantity && t.price < t.priceConstraintMax && t.quality > t.qualityConstraintMin) {
+                                // skip same quantity orders
+                                // if supplier has changed price/quality but they're still ok with constraint values
                                 return null;
                             }
 
