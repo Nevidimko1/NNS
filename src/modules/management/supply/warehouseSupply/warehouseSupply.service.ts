@@ -16,6 +16,8 @@ import { Status } from '../../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../../shared/enums/logStatus.enum';
 
 export class WarehouseSupplyService extends SupplyService {
+    private readonly MIN_QUALITY_DIFF = 0.90;
+
     public strategies = WarehouseSupplyStrategies;
     public min = WarehouseMinSupplyStrategies;
     public max = WarehouseMaxSupplyStrategies;
@@ -42,10 +44,9 @@ export class WarehouseSupplyService extends SupplyService {
 
     private topSuppliers = (p: IWarehouseProduct): IWarehouseSupplier[] => {
         // top not mine suppliers.
-        const minQualityDiff = 0.90;
 
         const avgQuality = p.suppliers.reduce((r, s) => r + s.quality, 0) / (p.suppliers.length || 1);
-        const minQuality = Math.min(avgQuality, p.quality) * minQualityDiff;
+        const minQuality = Math.min(avgQuality, p.quality) * this.MIN_QUALITY_DIFF;
         console.log('MIN:', minQuality);
         const topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQuality));
         topSuppliers.sort(this.compareSuppliersFn);
@@ -88,6 +89,8 @@ export class WarehouseSupplyService extends SupplyService {
                     } else {
                         maxPQR = newSuppliers.reduce((r, s) => r + s.pqr, 0) / (newSuppliers.length || 1);
                         minQuality = newSuppliers.reduce((r, s) => r + s.quality, 0) / (newSuppliers.length || 1);
+                        minQuality = Math.min(minQuality, p.quality);
+                        minQuality = minQuality * this.MIN_QUALITY_DIFF;
                     }
 
                     const removes = [];
