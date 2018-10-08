@@ -16,7 +16,7 @@ import { Status } from '../../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../../shared/enums/logStatus.enum';
 
 export class WarehouseSupplyService extends SupplyService {
-    private readonly MIN_QUALITY_DIFF = 0.90;
+    private readonly MIN_QUALITY_DIFF = 0.80;
 
     public strategies = WarehouseSupplyStrategies;
     public min = WarehouseMinSupplyStrategies;
@@ -42,11 +42,18 @@ export class WarehouseSupplyService extends SupplyService {
         return ((a.myself as any) - (b.myself as any)) || a.pqr - b.pqr;
     }
 
+    private calculateMinQuality = (p: IWarehouseProduct): number => {
+        let minQuality = 0;
+        minQuality = p.suppliers.reduce((r, s) => r + s.quality, 0) / (p.suppliers.length || 1);
+        minQuality = Math.min(minQuality, p.quality);
+        minQuality = minQuality * this.MIN_QUALITY_DIFF;
+        return minQuality;
+    }
+
     private topSuppliers = (p: IWarehouseProduct): IWarehouseSupplier[] => {
         // top not mine suppliers.
 
-        const avgQuality = p.suppliers.reduce((r, s) => r + s.quality, 0) / (p.suppliers.length || 1);
-        const minQuality = Math.min(avgQuality, p.quality) * this.MIN_QUALITY_DIFF;
+        const minQuality = this.calculateMinQuality(p);
         console.log('MIN:', minQuality);
         const topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQuality));
         topSuppliers.sort(this.compareSuppliersFn);
@@ -88,9 +95,7 @@ export class WarehouseSupplyService extends SupplyService {
                         maxPQR = (p.purchase / p.quality) * 5;
                     } else {
                         maxPQR = newSuppliers.reduce((r, s) => r + s.pqr, 0) / (newSuppliers.length || 1);
-                        minQuality = newSuppliers.reduce((r, s) => r + s.quality, 0) / (newSuppliers.length || 1);
-                        minQuality = Math.min(minQuality, p.quality);
-                        minQuality = minQuality * this.MIN_QUALITY_DIFF;
+                        minQuality = this.calculateMinQuality(p);
                     }
 
                     const removes = [];
