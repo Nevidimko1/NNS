@@ -16,7 +16,7 @@ import { Status } from '../../../../shared/status/status.singletone';
 import { LOG_STATUS } from '../../../../shared/enums/logStatus.enum';
 
 export class WarehouseSupplyService extends SupplyService {
-    private readonly MIN_QUALITY_DIFF = 0.80;
+    private readonly MIN_QUALITY_DIFF = 0.75;
 
     public strategies = WarehouseSupplyStrategies;
     public min = WarehouseMinSupplyStrategies;
@@ -35,7 +35,7 @@ export class WarehouseSupplyService extends SupplyService {
     }
 
     private filterSuppliersFn = (s: IWarehouseSupplier, minQuality: number): boolean => {
-        return !s.myself && s.quality > minQuality;
+        return !s.myself && s.quality >= minQuality;
     }
 
     private compareSuppliersFn = (a: IWarehouseSupplier, b: IWarehouseSupplier): number => {
