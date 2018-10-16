@@ -74,7 +74,7 @@ export class SupplyComponent extends ManagementSubComponent {
         $('#supplies-set-all').on('click', this.updateSupplies);
 
         this.settings = <ISupplyUnitSettings[]>this.getSettings() || [];
-        this.supplyUnits = $('table.unit-list-2014 tbody tr')
+        this.supplyUnits = $('table.unit-list-2014 tbody tr:not(.unit_comment)')
             .toArray()
             .map((row: HTMLTableRowElement) => {
                 const id = Number($(row).find('.unit_id').text()),
