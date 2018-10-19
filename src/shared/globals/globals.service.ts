@@ -2,39 +2,12 @@ import {
     IUnitsResponse,
     IUnitsResponseDataItem,
     IUnitItem,
-    IUnitsResponseIndicator,
-    IUnitItemProduct
+    IUnitsResponseIndicator
 } from './models/unitInfo.model';
 import { flatMap } from '../../utils';
 import { IUnitType, IUnitTypesResponse, IUnitTypesResponseItem } from './models/unitType.model';
 
 export class GlobalsService {
-
-    private mapProducts = (responseItem: IUnitsResponseDataItem): IUnitItemProduct[] => {
-        const idsString = (responseItem.product_ids || '{}'),
-            ids = idsString
-                .slice(1, idsString.length - 1)
-                .split(',')
-                .map(stringId => Number(stringId)),
-            symbolsString = (responseItem.product_symbols || '{}'),
-            product_symbols = symbolsString
-                .slice(1, symbolsString.length - 1)
-                .replace(/"/g, '')
-                .split(','),
-            namesString = (responseItem.product_names || ''),
-            product_names = namesString
-                .slice(1, namesString.length - 1)
-                .replace(/"/g, '')
-                .split(',');
-
-        return ids.map((id, i) => {
-            return {
-                id,
-                symbol: product_symbols[i],
-                name: product_names[i]
-            };
-        }) || [];
-    }
 
     public parseUnitsResponse = (response: IUnitsResponse): IUnitItem[] => {
         return flatMap(response.data)
@@ -62,7 +35,11 @@ export class GlobalsService {
                     market_status: responseItem.market_status,
                     time_to_build: Number(responseItem.time_to_build),
                     office_sort: Number(responseItem.office_sort),
-                    products: this.mapProducts(responseItem),
+                    products: responseItem.products.map(product => ({
+                        id: Number(product.id),
+                        name: product.name,
+                        symbol: product.symbol
+                    })),
                     indicators: Object.keys(response.indicators)
                         .filter((key: string) => Number(responseItem.id) === Number(key))
                         .map((key: string) => flatMap(response.indicators[key])
