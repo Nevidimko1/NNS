@@ -38,7 +38,7 @@ export class WarehouseSupplyService extends SupplyService {
     }
 
     private filterSuppliersFn = (s: IWarehouseSupplier, minQuality: number): boolean => {
-        return !s.myself && s.quality >= minQuality;
+        return s.quality >= minQuality;
     }
 
     private compareSuppliersFn = (a: IWarehouseSupplier, b: IWarehouseSupplier): number => {
@@ -54,12 +54,19 @@ export class WarehouseSupplyService extends SupplyService {
     }
 
     private topSuppliers = (p: IWarehouseProduct): IWarehouseSupplier[] => {
-        // top not mine suppliers.
-
         const minQuality = this.calculateMinQuality(p);
-        console.log('MIN:', minQuality);
-        const topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQuality));
+
+        // filter by quality
+        let topSuppliers = p.suppliers.filter(s => this.filterSuppliersFn(s, minQuality));
+
+        // don't order too expensive products!
+        // for products with no suppliers yet, ask user to manually add suppliers
+        const maxPQR = p.purchase ? (p.purchase / p.quality) * 5 : 0;
+        topSuppliers = topSuppliers.filter(s => s.pqr < maxPQR);
+
         topSuppliers.sort(this.compareSuppliersFn);
+
+        console.log(`Min quality: ${minQuality}; max PQR: ${maxPQR}`);
         return topSuppliers;
     }
 
@@ -90,21 +97,10 @@ export class WarehouseSupplyService extends SupplyService {
                     const min = unit.selectedMin ? unit.selectedMin.calculate(p) : 0;
                     let maxOrderValue = unit.selectedMax ? unit.selectedMax.calculate(p) : Infinity;
 
-                    // don't order too expensive products!
-                    // for products with no suppliers yet, create order with min quality of suppliers average quality
-                    let maxPQR = 0;
-                    let minQuality = 0;
-                    if (p.purchase) {
-                        maxPQR = (p.purchase / p.quality) * 5;
-                    } else {
-                        maxPQR = newSuppliers.reduce((r, s) => r + s.pqr, 0) / (newSuppliers.length || 1);
-                        minQuality = this.calculateMinQuality(p);
-                    }
-
                     const removes: IWarehouseContract[] = [];
                     const changes: WarehouseSupplyChangeModel[] = newSuppliers.map((t: IWarehouseContract, ti: number) => {
                         let quantity = t.available < toOrder ? t.available : toOrder;
-                        if ((quantity > 0 && t.pqr < maxPQR) || t.myself) {
+                        if (quantity > 0 || t.myself) {
                             // respect max value to order in $$$
                             if (maxOrderValue - quantity * t.price < 0) {
                                 quantity = Math.floor(maxOrderValue / t.price);
@@ -120,11 +116,6 @@ export class WarehouseSupplyService extends SupplyService {
 
                             // skip not needed suppliers
                             if (!quantity) {
-                                return;
-                            }
-
-                            // skip if quality is less that required
-                            if (minQuality > t.quality) {
                                 return;
                             }
 
@@ -157,7 +148,7 @@ export class WarehouseSupplyService extends SupplyService {
                             } else {
                                 removes.push(t);
                             }
-                        } else if (ti === 0 && t.pqr < maxPQR) {
+                        } else if (ti === 0) {
                             // if no suppliers needed keep the best with min quantity, just in case it's needed in future
                             return this.createChangeObject(info.id, min, t);
                         }
