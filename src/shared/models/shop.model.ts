@@ -9,10 +9,23 @@ export interface IShopProductHistory {
 }
 
 export interface IShopProductReport {
+    // localPrice: number;
+    // localQuality: number;
+    // localBrand: number;
+
+    avgBrand: number;
+    avgPrice: number;
+    avgQuality: number;
+    companyCount: number;
+    indexMax: number;
+    indexMin: number;
+    localMarketLevel: number;
+    localMarketSize: number;
     localPrice: number;
     localQuality: number;
-    localBrand: number;
-    cityShare: number;
+    name: string;
+    shopCount: number;
+    symbol: string;
 }
 
 export interface IShopProduct extends IUnitItemProduct {

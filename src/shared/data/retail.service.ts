@@ -5,11 +5,16 @@ import { numberify } from '../../utils';
 import { IUnitItem, IUnitItemProduct, IUnitsResponse } from '../globals/models/unitInfo.model';
 import { LS, StorageItem } from '../../utils/storage';
 import { LOG_STATUS } from '../enums/logStatus.enum';
+import { IReportResponse } from '../models/reportResponse.model';
 
 export class RetailService extends DataService {
 
+    private reportUrlPart: string;
+
     constructor() {
         super();
+
+        this.reportUrlPart = `https://virtonomica.ru/api/${this.globals.info.realm}/main/marketing/report/retail/metrics?format=json&`;
     }
 
     private populateProductsHistories = (shopInfo: IShop): Promise<IShop> => {
@@ -40,28 +45,31 @@ export class RetailService extends DataService {
 
     private getProductReport = (url: string): Promise<IShopProductReport> => {
         return Api.get(url)
-            .then((html: string) => {
-                const infoTable = $(html).find('#mainContent > table:eq(1) > tbody > tr:eq(0) > td:eq(2) > table');
-
-                if (!infoTable) {
-                    return;
-                }
-
-                const cityShare = $(html).find('table.grid:eq(0) tr:eq(0) td:eq(4)').text().replace(' ед.', '');
-                const rows = $(infoTable).find('tbody tr');
+            .then((report: IReportResponse) => {
                 return {
-                    localPrice: numberify($(rows[1]).find('td:eq(0)').text()),
-                    localQuality: numberify($(rows[2]).find('td:eq(0)').text()),
-                    localBrand: numberify($(rows[3]).find('td:eq(0)').text()),
-                    cityShare: numberify(cityShare)
+                    avgBrand: numberify(report.avg_brand),
+                    avgPrice: numberify(report.avg_price),
+                    avgQuality: numberify(report.avg_quality),
+                    companyCount: numberify(report.company_count),
+                    indexMax: numberify(report.index_max),
+                    indexMin: numberify(report.index_min),
+                    localMarketLevel: numberify(report.local_market_level),
+                    localMarketSize: numberify(report.local_market_size),
+                    localPrice: numberify(report.local_price),
+                    localQuality: numberify(report.local_quality),
+                    name: report.name,
+                    shopCount: numberify(report.shop_count),
+                    symbol: report.symbol
                 };
             });
     }
 
     private populateReports = ($html: JQuery, unit: IShop): Promise<IShop> => {
         const reportsUrls = $html.find('.grid a:has(img):not(:has(img[alt]))').toArray()
-                .map((e: HTMLElement) => $(e).attr('href')) as string[],
-            promises = reportsUrls.map((url: string) => this.getProductReport(url));
+                .map((e: HTMLElement) => $(e).attr('href'))
+                .map(url => this.reportUrlPart + url.split('?')[1]) as string[];
+
+        const promises = reportsUrls.map((url: string) => this.getProductReport(url));
 
         return Promise.all(promises)
             .then((reports: IShopProductReport[]) => {
@@ -250,13 +258,14 @@ export class RetailService extends DataService {
     }
 
     private retrieveUnitInfo = (unit: IUnitItem): Promise<IShop> => {
-        const storageItem = LS.get(this.storageKey(unit.id));
-        if (this.shopInfoIsUpToDate(storageItem)) {
-            return this.restoreShopInfo(storageItem.data as IShop);
-        } else {
-            const u = this.globals.unitsList.filter(item => item.id === unit.id)[0] || unit;
-            return this.fetchShopInfo(u);
-        }
+        // const storageItem = LS.get(this.storageKey(unit.id));
+        // if (this.shopInfoIsUpToDate(storageItem)) {
+        //     return this.restoreShopInfo(storageItem.data as IShop);
+        // } else {
+        //     const u = this.globals.unitsList.filter(item => item.id === unit.id)[0] || unit;
+        //     return this.fetchShopInfo(u);
+        // }
+        return this.fetchShopInfo(unit);
     }
 
     public getUnitInfo = (unit: IUnitItem): Promise<IShop> => {
