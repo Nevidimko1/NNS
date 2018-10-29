@@ -16,7 +16,7 @@ export class SoldRetailSupplyStrategy implements ISupplyStrategy {
         if (product.supply.sold === 0 &&
             product.supply.purchase === 0 &&
             product.supply.stock === 0) {
-            return Math.floor(product.report.cityShare * 0.05);
+            return Math.floor(product.report.localMarketSize * 0.05);
         }
 
         // Next day after supply change. Keep the quantity
